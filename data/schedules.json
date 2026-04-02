@@ -1,6 +1,6 @@
 [
   {
-    "shopName": "äº¿é¡ºç¿¡ç¿ ç å®çåº",
+    "shopName": "Ã¤ÂºÂ¿Ã©Â¡ÂºÃ§Â¿Â¡Ã§Â¿Â Ã§ÂÂ Ã¥Â®ÂÃ§ÂÂÃ¥ÂºÂ",
     "contact": "1",
     "liveDate": "2026-04-09",
     "startTime": "20:33",
@@ -9,12 +9,21 @@
     "submittedAt": "2026-04-02T12:34:04.215Z"
   },
   {
-    "shopName": "亿顺翡翠珠宝的店",
+    "shopName": "äº¿é¡ºç¿¡ç¿ ç å®çåº",
     "contact": "1",
     "liveDate": "2026-04-12",
     "startTime": "20:34",
     "endTime": "21:34",
     "gmv": null,
     "submittedAt": "2026-04-02T12:34:27.408Z"
+  },
+  {
+    "shopName": "藏兜里的店",
+    "contact": "1",
+    "liveDate": "2026-04-12",
+    "startTime": "09:45",
+    "endTime": "15:58",
+    "gmv": 5,
+    "submittedAt": "2026-04-02T12:47:12.323Z"
   }
 ]
