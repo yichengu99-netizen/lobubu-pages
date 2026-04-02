@@ -129,9 +129,18 @@
 </div>
 
 <div class="card" id="historyCard" style="display:none">
-  <div class="card-header" style="display:flex;align-items:center;justify-content:space-between">
-    <div><h2>📋 我的直播排期</h2><p>已提交的场次</p></div>
-    <span id="historyBadge" style="background:#fff0f2;color:#ff2442;border-radius:20px;padding:3px 12px;font-size:13px;font-weight:600"></span>
+  <div class="card-header">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div><h2>📋 我的直播排期</h2><p id="historySubtitle">已提交的场次</p></div>
+      <span id="historyBadge" style="background:#fff0f2;color:#ff2442;border-radius:20px;padding:3px 12px;font-size:13px;font-weight:600"></span>
+    </div>
+    <div id="levelBar" style="display:none">
+      <div id="levelStatus" style="font-size:13px;font-weight:600;margin-bottom:6px"></div>
+      <div style="background:#f0f0f0;border-radius:6px;height:8px;overflow:hidden">
+        <div id="levelProgress" style="height:100%;border-radius:6px;transition:width .5s;background:linear-gradient(90deg,#ff2442,#ff6b35)"></div>
+      </div>
+      <div id="levelHint" style="font-size:11px;color:#aaa;margin-top:5px"></div>
+    </div>
   </div>
   <div id="historyList"></div>
 </div>
@@ -249,9 +258,49 @@ async function loadHistory(shop) {
       if (!isDup) all = [_pendingSchedule, ...all];
     }
     const mine = all.filter(d => d.shopName === shop).sort((a,b) => (b.liveDate+b.startTime) > (a.liveDate+a.startTime) ? 1 : -1);
-    document.getElementById('historyBadge').textContent = mine.length + ' 场';
-    if (!mine.length) { list.innerHTML = '<div class="history-empty"><div class="e">📭</div>还没有排期记录<br>填写上方表单提交第一场！</div>'; return; }
-    list.innerHTML = mine.map(item => `<div class="schedule-item"><div class="s-dot"></div><div class="s-info"><div class="s-date">${item.liveDate}</div><div class="s-time">${item.startTime}${item.endTime?' → '+item.endTime:''}</div>${item.gmv>=15?'<span class="s-badge">🔥 大场扶持</span>':'<span class="s-badge" style="background:#fff8e6;color:#ff8800">⚡ 官方加热</span>'}</div>${item.gmv?`<div class="s-gmv">预估${item.gmv}万</div>`:''}</div>`).join('');
+    const total = mine.length;
+    const totalGmv = mine.reduce((s, d) => s + (parseFloat(d.gmv) || 0), 0);
+    document.getElementById('historyBadge').textContent = total + ' 场';
+    document.getElementById('historySubtitle').textContent = `已提报 ${total} 场 · 计划成交 ${totalGmv.toFixed(1)} 万`;
+
+    // 勤奋度等级
+    const levelBar = document.getElementById('levelBar');
+    const levelStatus = document.getElementById('levelStatus');
+    const levelProgress = document.getElementById('levelProgress');
+    const levelHint = document.getElementById('levelHint');
+    levelBar.style.display = 'block';
+
+    if (total === 0) {
+      levelStatus.innerHTML = '<span style="color:#ccc">⚫ 流量扶持未开启</span>';
+      levelProgress.style.width = '0%';
+      levelProgress.style.background = '#ddd';
+      levelHint.textContent = '提报直播排期，解锁流量扶持资格';
+    } else if (total < 5) {
+      levelStatus.innerHTML = `<span style="color:#ff8800">🔒 再提报 ${5-total} 场，解锁官方加热</span>`;
+      levelProgress.style.width = (total/5*100) + '%';
+      levelProgress.style.background = '#ffb300';
+      levelHint.textContent = '不足5场视为无计划开播，不分配流量资源';
+    } else if (total < 10) {
+      levelStatus.innerHTML = '<span style="color:#52c41a">✅ 官方加热</span>　<span style="color:#aaa;font-size:11px">再提报 ' + (10-total) + ' 场升级</span>';
+      levelProgress.style.width = (total/10*100) + '%';
+      levelProgress.style.background = 'linear-gradient(90deg,#52c41a,#95de64)';
+      levelHint.textContent = '已解锁流量扶持 · 提报10场解锁流量加成';
+    } else if (total < 20) {
+      levelStatus.innerHTML = '<span style="color:#1890ff">⚡ 流量加成</span>　<span style="color:#aaa;font-size:11px">再提报 ' + (20-total) + ' 场升级</span>';
+      levelProgress.style.width = (total/20*100) + '%';
+      levelProgress.style.background = 'linear-gradient(90deg,#1890ff,#69c0ff)';
+      levelHint.textContent = '已解锁流量加成 · 提报20场解锁专属扶持资源';
+    } else {
+      levelStatus.innerHTML = '<span style="color:#ff2442">🔥 专属扶持资源</span>';
+      levelProgress.style.width = '100%';
+      levelProgress.style.background = 'linear-gradient(90deg,#ff2442,#ff6b35)';
+      levelHint.textContent = '已解锁最高等级扶持 · 运营将主动联系你';
+    }
+
+    if (!total) { list.innerHTML = '<div class="history-empty"><div class="e">📭</div>还没有排期记录<br>填写上方表单提交第一场！</div>'; return; }
+    // 徽章只在≥5场时显示
+    const showBadge = total >= 5;
+    list.innerHTML = mine.map(item => `<div class="schedule-item"><div class="s-dot"></div><div class="s-info"><div class="s-date">${item.liveDate}</div><div class="s-time">${item.startTime}${item.endTime?' → '+item.endTime:''}</div>${showBadge?(item.gmv>=15?'<span class="s-badge">🔥 大场扶持</span>':'<span class="s-badge" style="background:#fff8e6;color:#ff8800">⚡ 官方加热</span>'):''}</div>${item.gmv?`<div class="s-gmv">预估${item.gmv}万</div>`:''}</div>`).join('');
   } catch { list.innerHTML = '<div class="history-empty"><div class="e">⚠️</div>加载失败，请重试</div>'; }
 }
 
