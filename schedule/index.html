@@ -98,8 +98,9 @@
       <label>店铺名称 <span class="req">*</span></label>
       <div class="select-wrap" style="position:relative">
         <input type="text" id="shopSearch" placeholder="输入店铺名称关键词..." autocomplete="off"
-          style="width:100%;height:48px;border:1.5px solid #ebebeb;border-radius:10px;padding:0 14px;font-size:15px;background:#fafafa;outline:none;transition:border-color .2s,background .2s;"
+          style="width:100%;height:48px;border:1.5px solid #ebebeb;border-radius:10px;padding:0 40px 0 14px;font-size:15px;background:#fafafa;outline:none;transition:border-color .2s,background .2s;"
           >
+        <button id="shopClearBtn" onclick="clearShop()" style="display:none;position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:20px;color:#bbb;cursor:pointer;padding:0;line-height:1">×</button>
         <div id="shopDropdown" style="display:none;position:absolute;top:50px;left:0;right:0;background:white;border:1.5px solid #ff2442;border-radius:10px;max-height:220px;overflow-y:auto;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,.12)"></div>
         <input type="hidden" id="shopName" name="shopName">
       </div>
