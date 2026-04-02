@@ -119,7 +119,7 @@
       </div>
       <div class="field">
         <label>预计结束时间</label>
-        <input type="time" id="endTime" name="endTime">
+        <input type="time" id="endTime" name="endTime" value="23:58" readonly style="background:#f0f0f0;color:#aaa;cursor:not-allowed;">
       </div>
     </div>
     <div class="field" style="margin-top:18px">
@@ -193,6 +193,8 @@ window.onload = () => {
   inp.addEventListener('blur', hideDropdown);
 };
 
+let _pendingSchedule = null;
+
 async function loadHistory(shop) {
   const card = document.getElementById('historyCard');
   const list = document.getElementById('historyList');
@@ -200,7 +202,12 @@ async function loadHistory(shop) {
   list.innerHTML = '<div style="padding:20px;text-align:center;color:#ccc;font-size:14px">加载中...</div>';
   try {
     const r = await fetch(`https://raw.githubusercontent.com/${REPO}/main/data/schedules.json?t=${Date.now()}`);
-    const all = r.ok ? await r.json() : [];
+    let all = r.ok ? await r.json() : [];
+    // 合并本地刚提交的数据（CDN 有缓存，刚写的可能还没同步）
+    if (_pendingSchedule && _pendingSchedule.shopName === shop) {
+      const isDup = all.some(d => d.submittedAt === _pendingSchedule.submittedAt);
+      if (!isDup) all = [_pendingSchedule, ...all];
+    }
     const mine = all.filter(d => d.shopName === shop).sort((a,b) => b.liveDate > a.liveDate ? 1 : -1).slice(0,15);
     document.getElementById('historyBadge').textContent = mine.length + ' 场';
     if (!mine.length) { list.innerHTML = '<div class="history-empty"><div class="e">📭</div>还没有排期记录<br>填写上方表单提交第一场！</div>'; return; }
@@ -240,8 +247,9 @@ async function submitForm() {
       body: JSON.stringify({ message: `schedule: ${shopName} ${liveDate}`, content: btoa(unescape(encodeURIComponent(JSON.stringify(existingData, null, 2)))), sha: fileInfo.sha })
     });
     if (!rPut.ok) throw new Error('写入失败');
+    // 直接把新数据插入到历史显示，不等 CDN 缓存刷新
+    _pendingSchedule = { shopName, contact, liveDate, startTime, endTime, gmv, submittedAt: new Date().toISOString() };
     document.getElementById('overlay').classList.add('show');
-    setTimeout(() => loadHistory(shopName), 2000);
   } catch(e) {
     alert('提交遇到问题，请截图后发给运营同学。');
   } finally {
@@ -252,10 +260,12 @@ async function submitForm() {
 function closeModal() {
   document.getElementById('overlay').classList.remove('show');
   document.getElementById('startTime').value = '';
-  document.getElementById('endTime').value = '';
   document.getElementById('gmv').value = '';
   const d = new Date(); d.setDate(d.getDate()+1);
   document.getElementById('liveDate').value = d.toISOString().split('T')[0];
+  // 关弹窗时刷新历史（给 CDN 3 秒同步时间，同时本地已有 _pendingSchedule 兜底）
+  const shop = document.getElementById('shopName').value;
+  if (shop) setTimeout(() => loadHistory(shop), 1000);
 }
 </script>
 </body>
