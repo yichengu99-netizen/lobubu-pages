@@ -167,6 +167,8 @@ const SHOPS = ["00后掌翠人婷子","AYAO GEM STUDIO 珠宝的店","CherryWint
 function filterShops(val) {
   const dropdown = document.getElementById('shopDropdown');
   const kw = val.trim();
+  document.getElementById('shopClearBtn').style.display = kw ? 'block' : 'none';
+  if (!kw) document.getElementById('shopName').value = '';
   const matches = kw ? SHOPS.filter(s => s.includes(kw)) : SHOPS.slice(0, 20);
   if (!matches.length) { dropdown.style.display='none'; return; }
   dropdown.innerHTML = matches.map(s => {
@@ -181,8 +183,18 @@ function selectShop(name) {
   document.getElementById('shopSearch').value = name;
   document.getElementById('shopName').value = name;
   document.getElementById('shopDropdown').style.display = 'none';
-  _pendingSchedule = null; // 切换商家时清空本地缓存
+  document.getElementById('shopClearBtn').style.display = 'block';
+  _pendingSchedule = null;
   loadHistory(name);
+}
+
+function clearShop() {
+  document.getElementById('shopSearch').value = '';
+  document.getElementById('shopName').value = '';
+  document.getElementById('shopClearBtn').style.display = 'none';
+  document.getElementById('shopDropdown').style.display = 'none';
+  document.getElementById('historyCard').style.display = 'none';
+  _pendingSchedule = null;
 }
 
 function hideDropdown() {
