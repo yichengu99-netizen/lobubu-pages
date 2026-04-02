@@ -105,8 +105,8 @@
       </div>
     </div>
     <div class="field">
-      <label>联系微信 <span class="req">*</span></label>
-      <input type="text" id="contact" name="contact" placeholder="填写微信号，方便有问题联系你">
+      <label>联系方式（手机号）<span class="req">*</span></label>
+      <input type="text" id="contact" name="contact" placeholder="填写手机号，方便有问题联系你" type="tel" inputmode="numeric">
     </div>
     <div class="field">
       <label>直播日期 <span class="req">*</span></label>
@@ -122,6 +122,7 @@
       <label>预估成交额（万元）</label>
       <input type="number" id="gmv" name="gmv" placeholder="如：5" inputmode="decimal" step="0.1">
       <div class="hint">大场（预估 ≥15万）将获得额外首页推荐资源</div>
+      <div class="hint" style="color:#ff8800;margin-top:3px">⚠️ 必填，不确定可填预估值</div>
     </div>
     <button class="submit-btn" id="submitBtn" onclick="submitForm()">提交排期 ✨</button>
   </div>
@@ -129,7 +130,7 @@
 
 <div class="card" id="historyCard" style="display:none">
   <div class="card-header" style="display:flex;align-items:center;justify-content:space-between">
-    <div><h2>🎬 我的直播记录</h2><p>已提交的排期场次</p></div>
+    <div><h2>📋 我的直播排期</h2><p>已提交的场次</p></div>
     <span id="historyBadge" style="background:#fff0f2;color:#ff2442;border-radius:20px;padding:3px 12px;font-size:13px;font-weight:600"></span>
   </div>
   <div id="historyList"></div>
@@ -187,6 +188,9 @@ window.onload = () => {
   inp.addEventListener('input', () => filterShops(inp.value));
   inp.addEventListener('focus', () => filterShops(inp.value));
   inp.addEventListener('blur', hideDropdown);
+  // 开播时间变化时更新结束时间
+  document.getElementById('startTime').addEventListener('input', updateEndTime);
+  document.getElementById('startTime').addEventListener('change', updateEndTime);
 };
 
 let _pendingSchedule = null;
@@ -244,7 +248,7 @@ async function loadHistory(shop) {
       const isDup = all.some(d => d.submittedAt === _pendingSchedule.submittedAt);
       if (!isDup) all = [_pendingSchedule, ...all];
     }
-    const mine = all.filter(d => d.shopName === shop).sort((a,b) => b.liveDate > a.liveDate ? 1 : -1).slice(0,15);
+    const mine = all.filter(d => d.shopName === shop).sort((a,b) => (b.liveDate+b.startTime) > (a.liveDate+a.startTime) ? 1 : -1);
     document.getElementById('historyBadge').textContent = mine.length + ' 场';
     if (!mine.length) { list.innerHTML = '<div class="history-empty"><div class="e">📭</div>还没有排期记录<br>填写上方表单提交第一场！</div>'; return; }
     list.innerHTML = mine.map(item => `<div class="schedule-item"><div class="s-dot"></div><div class="s-info"><div class="s-date">${item.liveDate}</div><div class="s-time">${item.startTime}${item.endTime?' → '+item.endTime:''}</div>${item.gmv>=15?'<span class="s-badge">🔥 大场扶持</span>':''}</div>${item.gmv?`<div class="s-gmv">预估${item.gmv}万</div>`:''}</div>`).join('');
@@ -260,9 +264,10 @@ async function submitForm() {
   const gmv = parseFloat(document.getElementById('gmv').value) || null;
 
   if (!shopName) { alert('请选择店铺名称'); return; }
-  if (!contact) { alert('请填写联系微信'); return; }
+  if (!contact) { alert('请填写联系方式'); return; }
   if (!liveDate) { alert('请选择直播日期'); return; }
   if (!startTime) { alert('请填写开播时间'); return; }
+  if (!gmv || gmv <= 0) { alert('请填写预估成交额'); return; }
 
   const btn = document.getElementById('submitBtn');
   btn.disabled = true; btn.textContent = '提交中...';
