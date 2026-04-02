@@ -107,7 +107,7 @@
     </div>
     <div class="field">
       <label>联系方式（手机号）<span class="req">*</span></label>
-      <input type="text" id="contact" name="contact" placeholder="填写手机号，方便有问题联系你" type="tel" inputmode="numeric">
+      <input type="text" id="contact" name="contact" placeholder="填写手机号，方便有问题联系你" type="tel" inputmode="numeric" maxlength="11" pattern="1[0-9]{10}">
     </div>
     <div class="field">
       <label>直播日期 <span class="req">*</span></label>
@@ -333,6 +333,7 @@ async function submitForm() {
 
   if (!shopName) { alert('请选择店铺名称'); return; }
   if (!contact) { alert('请填写联系方式'); return; }
+  if (!/^1[0-9]{10}$/.test(contact)) { alert('请填写正确的11位手机号'); return; }
   if (!liveDate) { alert('请选择直播日期'); return; }
   if (!startTime) { alert('请填写开播时间'); return; }
   if (!gmv || gmv <= 0) { alert('请填写预估成交额'); return; }
