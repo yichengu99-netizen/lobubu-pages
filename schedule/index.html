@@ -233,9 +233,13 @@ async function loadHistory(shop) {
   card.style.display = 'block';
   list.innerHTML = '<div style="padding:20px;text-align:center;color:#ccc;font-size:14px">加载中...</div>';
   try {
-    const r = await fetch(`https://raw.githubusercontent.com/${REPO}/main/data/schedules.json?t=${Date.now()}`);
-    let all = r.ok ? await r.json() : [];
-    // 合并本地刚提交的数据（CDN 有缓存，刚写的可能还没同步）
+    // 用 GitHub API 读取（绕过 CDN 缓存，确保实时）
+    const r = await fetch(`https://api.github.com/repos/${REPO}/contents/data/schedules.json`, {
+      headers: { Authorization: `token ${_t}`, Accept: 'application/vnd.github.v3+json' }
+    });
+    const fileInfo = r.ok ? await r.json() : null;
+    let all = fileInfo ? JSON.parse(decodeURIComponent(escape(atob(fileInfo.content.replace(/\n/g, ''))))) : [];
+    // 本地兜底：若 _pendingSchedule 还没同步进去
     if (_pendingSchedule && _pendingSchedule.shopName === shop) {
       const isDup = all.some(d => d.submittedAt === _pendingSchedule.submittedAt);
       if (!isDup) all = [_pendingSchedule, ...all];
