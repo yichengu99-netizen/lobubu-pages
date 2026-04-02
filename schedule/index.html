@@ -112,16 +112,11 @@
       <label>直播日期 <span class="req">*</span></label>
       <input type="date" id="liveDate" name="liveDate">
     </div>
-    <div class="time-row">
-      <div class="field">
-        <label>开播时间 <span class="req">*</span></label>
-        <input type="time" id="startTime" name="startTime">
-      </div>
-      <div class="field">
-        <label>预计结束时间</label>
-        <div style="width:100%;height:48px;border:1.5px solid #ebebeb;border-radius:10px;padding:0 14px;font-size:15px;background:#f5f5f5;color:#aaa;display:flex;align-items:center;pointer-events:none;user-select:none;">23:58（固定）</div>
-        <input type="hidden" id="endTime" name="endTime" value="23:58">
-      </div>
+    <div class="field">
+      <label>开播时间 <span class="req">*</span></label>
+      <input type="time" id="startTime" name="startTime" oninput="updateEndTime()">
+      <div class="hint" id="endTimeHint" style="margin-top:6px;font-size:12px;color:#aaa;">结束时间：填写开播时间后自动计算</div>
+      <input type="hidden" id="endTime" name="endTime" value="">
     </div>
     <div class="field" style="margin-top:18px">
       <label>预估成交额（万元）</label>
@@ -195,6 +190,17 @@ window.onload = () => {
 };
 
 let _pendingSchedule = null;
+
+function updateEndTime() {
+  const val = document.getElementById('startTime').value;
+  if (!val) return;
+  const [h, m] = val.split(':').map(Number);
+  let endH = h + 4, endM = m;
+  if (endH > 23 || (endH === 23 && endM > 58)) { endH = 23; endM = 58; }
+  const endStr = `${String(endH).padStart(2,'0')}:${String(endM).padStart(2,'0')}`;
+  document.getElementById('endTime').value = endStr;
+  document.getElementById('endTimeHint').textContent = `结束时间：${endStr}（开播后4小时）`;
+}
 
 function _utf8ToBase64(str) {
   return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (_, p1) => String.fromCharCode(parseInt(p1, 16))));
