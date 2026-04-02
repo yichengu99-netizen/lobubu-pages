@@ -181,6 +181,7 @@ function selectShop(name) {
   document.getElementById('shopSearch').value = name;
   document.getElementById('shopName').value = name;
   document.getElementById('shopDropdown').style.display = 'none';
+  _pendingSchedule = null; // 切换商家时清空本地缓存
   loadHistory(name);
 }
 
@@ -226,6 +227,9 @@ async function _writeSchedule(newItem, retries = 3) {
     });
     const fileInfo = await rGet.json();
     const existingData = JSON.parse(decodeURIComponent(escape(atob(fileInfo.content.replace(/\n/g, '')))));
+    // 重复检查：同店铺+同日期+同开播时间
+    const isDup = existingData.some(d => d.shopName === newItem.shopName && d.liveDate === newItem.liveDate && d.startTime === newItem.startTime);
+    if (isDup) throw new Error('DUPLICATE');
     existingData.push(newItem);
     const rPut = await fetch(`https://api.github.com/repos/${REPO}/contents/data/schedules.json`, {
       method: 'PUT',
@@ -327,7 +331,11 @@ async function submitForm() {
     _pendingSchedule = newItem;
     document.getElementById('overlay').classList.add('show');
   } catch(e) {
-    alert('提交遇到问题，请截图后发给运营同学。');
+    if (e.message === 'DUPLICATE') {
+      alert('该日期和开播时间已提报过，请勿重复提交！');
+    } else {
+      alert('提交遇到问题，请截图后发给运营同学。');
+    }
   } finally {
     btn.disabled = false; btn.textContent = '提交排期 ✨';
   }
