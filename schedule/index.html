@@ -251,7 +251,7 @@ async function loadHistory(shop) {
     const mine = all.filter(d => d.shopName === shop).sort((a,b) => (b.liveDate+b.startTime) > (a.liveDate+a.startTime) ? 1 : -1);
     document.getElementById('historyBadge').textContent = mine.length + ' 场';
     if (!mine.length) { list.innerHTML = '<div class="history-empty"><div class="e">📭</div>还没有排期记录<br>填写上方表单提交第一场！</div>'; return; }
-    list.innerHTML = mine.map(item => `<div class="schedule-item"><div class="s-dot"></div><div class="s-info"><div class="s-date">${item.liveDate}</div><div class="s-time">${item.startTime}${item.endTime?' → '+item.endTime:''}</div>${item.gmv>=15?'<span class="s-badge">🔥 大场扶持</span>':''}</div>${item.gmv?`<div class="s-gmv">预估${item.gmv}万</div>`:''}</div>`).join('');
+    list.innerHTML = mine.map(item => `<div class="schedule-item"><div class="s-dot"></div><div class="s-info"><div class="s-date">${item.liveDate}</div><div class="s-time">${item.startTime}${item.endTime?' → '+item.endTime:''}</div>${item.gmv>=15?'<span class="s-badge">🔥 大场扶持</span>':'<span class="s-badge" style="background:#fff8e6;color:#ff8800">⚡ 官方加热</span>'}</div>${item.gmv?`<div class="s-gmv">预估${item.gmv}万</div>`:''}</div>`).join('');
   } catch { list.innerHTML = '<div class="history-empty"><div class="e">⚠️</div>加载失败，请重试</div>'; }
 }
 
