@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "shopName": "藏兜里的店",
+    "contact": "112",
+    "liveDate": "2026-04-03",
+    "startTime": "22:12",
+    "endTime": "23:58",
+    "gmv": 5,
+    "submittedAt": "2026-04-02T13:12:34.833Z"
+  }
+]
