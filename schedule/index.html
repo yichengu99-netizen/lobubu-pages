@@ -96,7 +96,13 @@
   <div class="card-body">
     <div class="field">
       <label>店铺名称 <span class="req">*</span></label>
-      <div class="select-wrap"><select id="shopName" name="shopName"><option value="">请选择你的店铺</option></select></div>
+      <div class="select-wrap" style="position:relative">
+        <input type="text" id="shopSearch" placeholder="输入店铺名称关键词..." autocomplete="off"
+          style="width:100%;height:48px;border:1.5px solid #ebebeb;border-radius:10px;padding:0 14px;font-size:15px;background:#fafafa;outline:none;transition:border-color .2s,background .2s;"
+          oninput="filterShops(this.value)" onfocus="filterShops(this.value)" onblur="setTimeout(hideDropdown,200)">
+        <div id="shopDropdown" style="display:none;position:absolute;top:50px;left:0;right:0;background:white;border:1.5px solid #ff2442;border-radius:10px;max-height:220px;overflow-y:auto;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,.12)"></div>
+        <input type="hidden" id="shopName" name="shopName">
+      </div>
     </div>
     <div class="field">
       <label>联系微信 <span class="req">*</span></label>
@@ -152,12 +158,31 @@ const _t = ['ghp_teXNPpev', 'GbXC6r9rqe85', 'WbE4CDeO3l3J9bdN'].join(''); // 用
 const SHOPS = ["00后掌翠人婷子","AYAO GEM STUDIO 珠宝的店","CherryWintour的店","Mrose的店","PPGIGI的店","QnJewelry奎恩珠宝的店","Revanna沉香的店","SEETHOU又见兮的店","Shannai Jewellery的店","c瑞云翡翠的店","zahara纯-万能链巨鳄的店","一兴的店","一只肉丸","一夕云手作的店","七七翡翠源头收货中的店","与己出品","中国地质学府店的店","丹丹的月光宝盒的店","丹若珠宝的店","亿顺翡翠珠宝的店","佩的珠宝美学的店","依然美翡翠珠宝的店","兰香序非遗合香旗舰店","冠色珠宝-建政的店","冰芝玉珠宝玉器的店","凝翠珠宝闲置的店","刘姐外贸珠宝的店","华宝沉香堂的店","圣哥玩一下的店","墨宜珠宝|77","墨宜珠宝的店","壁玉阁的店的店","壮壮籽玉的店","壹加壹珠宝珍品馆的店","壹加壹翡翠的店","壹号翡翠店的店","大喻·松风造物的店","大林珠宝严选的店","大梦和田的店","大运河紫檀博物馆的店","太樾官方旗舰店","好运一生珠宝的店","如艺散珠批发的店","妙迦珠宝文玩店的店","婵婵的珠宝盒的店","官太的店","宝香雅楠金丝楠木馆的店","宝鸾珠宝的店","小丁南红优选","小红薯1652449853的店","小青姐和田玉的店","山中月手作的店","山野藏光diy金配饰","山野藏光珠宝定制","山野藏光金配饰工厂的店（大）","常兴玉器的店","广州瑜玥珠宝的店","弓山文藏的店","彝家南红的店","彦祖水晶的店","思成的灵石日记的店","揭阳和田玉工厂（周周）的店","新疆三强玉业的店","映色珠宝翡翠的店","春景珠宝旗舰店","晚隐.匠造的店","景阳珠宝首饰的店","末染珠宝的店","朴玉不拙的店","松岗琥珀蜜蜡交易市场工厂店的店","松石，家里有厂！的店","梵希珠宝甄选的店","檀兮","正花期翡翠（艳儿）的店","汇安沉香文化的店","泽玉袁🏆袁姐的店","涵舍玉雕的店","潘小盒的店","澪一珠宝的店","独一绿松石的店","玉兰花小鱼的店","玉城阁珠宝的店","珠宝千斤的店","瑜宝泰珠宝的店","瑜己YUJI的店","璟亿珠宝的店","甸石翡翠的店","白玉轩的小掌柜的店","白绮梦翠的店","监雷斋的店","目成眉语原创珠宝的店","福宝翠手镯","私饰集高级珠宝旗舰店","素璞珠宝-晓晓的店","紫瑄翡翠珠宝的店","缅翠行的店","美好相玉—Design的店","羲和小筑的店","翠亿庭的店","翠浓翡翠的店","翠童珠宝臻选的店","翠翠甄心选的店","翡翠缘源头甄选的店","老Baby丨玄玑文化的店","肉段～猛犸手作打工人📿的店","芳华翡翠珠宝的店","蓉蓉珠宝臻选手镯的店","藏兜里的店","虎桃夹子的店","谭丽鹏·祝融珍品文玩珠宝的店","金柠珠宝的店","锦物集的店","锦鲤散珠批发的店","镀玉坊珠宝的店","阿俊翡翠戒圈指环的店","阿董珠宝的店","阿郑带你玩2号店的店","阿郑带你玩的店","雯小姐！的店","静缘翡翠的店","饰叶草珠宝二号店的店","饰叶草珠宝的店","香沁丨博玉珠宝的店","香至尊沉香的店","鹏哥美玉的店","黑盘羊沉香旗舰店"];
 
 window.onload = () => {
-  const sel = document.getElementById('shopName');
-  SHOPS.forEach(n => { const o = document.createElement('option'); o.value = o.textContent = n; sel.appendChild(o); });
   const d = new Date(); d.setDate(d.getDate() + 1);
   document.getElementById('liveDate').value = d.toISOString().split('T')[0];
   document.getElementById('liveDate').min = new Date().toISOString().split('T')[0];
-  sel.addEventListener('change', () => sel.value ? loadHistory(sel.value) : (document.getElementById('historyCard').style.display='none'));
+
+function filterShops(val) {
+  const dropdown = document.getElementById('shopDropdown');
+  const kw = val.trim();
+  const matches = kw ? SHOPS.filter(s => s.includes(kw)) : SHOPS.slice(0, 20);
+  if (!matches.length) { dropdown.style.display='none'; return; }
+  dropdown.innerHTML = matches.map(s =>
+    `<div onclick="selectShop('${s.replace(/'/g,"\'")}')" style="padding:12px 14px;font-size:15px;cursor:pointer;border-bottom:1px solid #f5f5f5;transition:background .15s" onmouseover="this.style.background='#fff0f2'" onmouseout="this.style.background=''">${s.replace(kw, `<b style="color:#ff2442">${kw}</b>`)}</div>`
+  ).join('');
+  dropdown.style.display = 'block';
+}
+
+function selectShop(name) {
+  document.getElementById('shopSearch').value = name;
+  document.getElementById('shopName').value = name;
+  document.getElementById('shopDropdown').style.display = 'none';
+  loadHistory(name);
+}
+
+function hideDropdown() {
+  document.getElementById('shopDropdown').style.display = 'none';
+}
 };
 
 async function loadHistory(shop) {
