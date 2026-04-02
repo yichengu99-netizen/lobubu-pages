@@ -8,239 +8,69 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif;
-      background: #f5f5f7;
-      color: #1d1d1f;
-      min-height: 100vh;
-      padding-bottom: 32px;
+      background: #f5f5f7; color: #1d1d1f; min-height: 100vh; padding-bottom: 32px;
     }
-
     .hero {
       background: linear-gradient(135deg, #ff2442 0%, #ff6b35 100%);
-      color: white;
-      padding: 32px 20px 28px;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
+      color: white; padding: 32px 20px 28px; text-align: center;
+      position: relative; overflow: hidden;
     }
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: -50px; right: -50px;
-      width: 180px; height: 180px;
-      background: rgba(255,255,255,0.08);
-      border-radius: 50%;
+    .hero::before { content:''; position:absolute; top:-50px; right:-50px; width:180px; height:180px; background:rgba(255,255,255,0.08); border-radius:50%; }
+    .hero-badge { display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,0.2); border-radius:20px; padding:5px 14px; font-size:12px; margin-bottom:14px; position:relative; z-index:1; }
+    .hero h1 { font-size:24px; font-weight:700; margin-bottom:8px; position:relative; z-index:1; }
+    .hero p { font-size:14px; opacity:.88; position:relative; z-index:1; }
+    .support-cards { display:flex; gap:10px; padding:16px 16px 4px; overflow-x:auto; scrollbar-width:none; }
+    .support-cards::-webkit-scrollbar { display:none; }
+    .support-card { flex:0 0 auto; background:white; border-radius:14px; padding:14px 16px; min-width:120px; text-align:center; box-shadow:0 2px 10px rgba(0,0,0,.07); }
+    .support-card .icon { font-size:26px; margin-bottom:6px; }
+    .support-card .label { font-size:11px; color:#888; }
+    .support-card .value { font-size:14px; font-weight:600; color:#ff2442; margin-top:3px; }
+    .card { margin:14px 16px 0; background:white; border-radius:16px; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,.06); }
+    .card-header { padding:16px 20px 13px; border-bottom:1px solid #f2f2f2; }
+    .card-header h2 { font-size:16px; font-weight:600; }
+    .card-header p { font-size:12px; color:#aaa; margin-top:4px; }
+    .card-body { padding:18px 20px; }
+    .field { margin-bottom:18px; }
+    .field label { display:block; font-size:13px; color:#555; font-weight:500; margin-bottom:8px; }
+    .req { color:#ff2442; }
+    .field select, .field input {
+      width:100%; height:48px; border:1.5px solid #ebebeb; border-radius:10px;
+      padding:0 14px; font-size:15px; color:#1d1d1f; background:#fafafa;
+      -webkit-appearance:none; appearance:none; outline:none; transition:border-color .2s,background .2s;
     }
-    .hero::after {
-      content: '';
-      position: absolute;
-      bottom: -30px; left: -30px;
-      width: 120px; height: 120px;
-      background: rgba(255,255,255,0.06);
-      border-radius: 50%;
-    }
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 20px;
-      padding: 5px 14px;
-      font-size: 12px;
-      margin-bottom: 14px;
-      position: relative;
-      z-index: 1;
-    }
-    .hero h1 {
-      font-size: 24px;
-      font-weight: 700;
-      margin-bottom: 8px;
-      position: relative;
-      z-index: 1;
-    }
-    .hero p {
-      font-size: 14px;
-      opacity: 0.88;
-      position: relative;
-      z-index: 1;
-    }
-
-    .support-cards {
-      display: flex;
-      gap: 10px;
-      padding: 16px 16px 4px;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
-    .support-cards::-webkit-scrollbar { display: none; }
-    .support-card {
-      flex: 0 0 auto;
-      background: white;
-      border-radius: 14px;
-      padding: 14px 16px;
-      min-width: 120px;
-      text-align: center;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.07);
-    }
-    .support-card .icon { font-size: 26px; margin-bottom: 6px; }
-    .support-card .label { font-size: 11px; color: #888; }
-    .support-card .value { font-size: 14px; font-weight: 600; color: #ff2442; margin-top: 3px; }
-
-    .card {
-      margin: 14px 16px 0;
-      background: white;
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-    }
-    .card-header {
-      padding: 16px 20px 13px;
-      border-bottom: 1px solid #f2f2f2;
-    }
-    .card-header h2 { font-size: 16px; font-weight: 600; }
-    .card-header p { font-size: 12px; color: #aaa; margin-top: 4px; }
-
-    .card-body { padding: 18px 20px; }
-
-    .field { margin-bottom: 18px; }
-    .field:last-of-type { margin-bottom: 0; }
-    .field label {
-      display: block;
-      font-size: 13px;
-      color: #555;
-      font-weight: 500;
-      margin-bottom: 8px;
-    }
-    .req { color: #ff2442; }
-
-    .field select,
-    .field input[type="text"],
-    .field input[type="date"],
-    .field input[type="time"],
-    .field input[type="number"] {
-      width: 100%;
-      height: 48px;
-      border: 1.5px solid #ebebeb;
-      border-radius: 10px;
-      padding: 0 14px;
-      font-size: 15px;
-      color: #1d1d1f;
-      background: #fafafa;
-      -webkit-appearance: none;
-      appearance: none;
-      outline: none;
-      transition: border-color 0.2s, background 0.2s;
-    }
-    .field select:focus,
-    .field input:focus {
-      border-color: #ff2442;
-      background: #fff;
-    }
-    .select-wrap { position: relative; }
-    .select-wrap::after {
-      content: '▾';
-      position: absolute;
-      right: 14px; top: 50%;
-      transform: translateY(-50%);
-      color: #bbb; font-size: 14px;
-      pointer-events: none;
-    }
-    .time-row { display: flex; gap: 10px; }
-    .time-row .field { flex: 1; margin-bottom: 0; }
-    .hint { font-size: 11px; color: #bbb; margin-top: 5px; }
-
+    .field select:focus, .field input:focus { border-color:#ff2442; background:#fff; }
+    .select-wrap { position:relative; }
+    .select-wrap::after { content:'▾'; position:absolute; right:14px; top:50%; transform:translateY(-50%); color:#bbb; font-size:14px; pointer-events:none; }
+    .time-row { display:flex; gap:10px; }
+    .time-row .field { flex:1; margin-bottom:0; }
+    .hint { font-size:11px; color:#bbb; margin-top:5px; }
     .submit-btn {
-      display: block;
-      width: 100%;
-      height: 52px;
-      background: linear-gradient(135deg, #ff2442, #ff6b35);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 20px;
-      letter-spacing: 0.5px;
-      transition: opacity 0.2s, transform 0.1s;
+      display:block; width:100%; height:52px;
+      background:linear-gradient(135deg,#ff2442,#ff6b35);
+      color:white; border:none; border-radius:12px; font-size:16px; font-weight:600;
+      cursor:pointer; margin-top:20px; transition:opacity .2s,transform .1s;
     }
-    .submit-btn:active { opacity: 0.85; transform: scale(0.98); }
-    .submit-btn:disabled { background: #ddd; color: #aaa; cursor: not-allowed; transform: none; }
-
-    /* 历史场次 */
-    .history-empty {
-      padding: 28px 20px;
-      text-align: center;
-      color: #ccc;
-      font-size: 14px;
-    }
-    .history-empty .e { font-size: 36px; margin-bottom: 8px; }
-
-    .schedule-item {
-      padding: 14px 20px;
-      border-bottom: 1px solid #f5f5f5;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-    .schedule-item:last-child { border-bottom: none; }
-    .s-dot {
-      width: 9px; height: 9px;
-      border-radius: 50%;
-      background: #ff2442;
-      flex-shrink: 0;
-    }
-    .s-info { flex: 1; }
-    .s-date { font-size: 12px; color: #aaa; }
-    .s-time { font-size: 15px; font-weight: 500; margin-top: 2px; }
-    .s-badge {
-      display: inline-block;
-      font-size: 10px;
-      background: #fff0f2;
-      color: #ff2442;
-      border-radius: 4px;
-      padding: 2px 6px;
-      margin-top: 4px;
-    }
-    .s-gmv { font-size: 14px; color: #ff2442; font-weight: 600; white-space: nowrap; }
-
-    /* 成功弹窗 */
-    .overlay {
-      display: none;
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: 999;
-      align-items: center;
-      justify-content: center;
-    }
-    .overlay.show { display: flex; }
-    .modal {
-      background: white;
-      border-radius: 22px;
-      padding: 36px 28px;
-      text-align: center;
-      max-width: 300px;
-      width: 88%;
-      animation: pop 0.3s ease;
-    }
-    @keyframes pop {
-      from { transform: scale(0.75); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-    .modal .m-icon { font-size: 60px; margin-bottom: 12px; }
-    .modal h3 { font-size: 19px; font-weight: 700; margin-bottom: 10px; }
-    .modal p { font-size: 14px; color: #666; line-height: 1.7; }
-    .modal-btn {
-      margin-top: 22px;
-      display: block; width: 100%;
-      height: 48px;
-      background: linear-gradient(135deg, #ff2442, #ff6b35);
-      color: white; border: none;
-      border-radius: 12px;
-      font-size: 15px; font-weight: 600;
-      cursor: pointer;
-    }
-
-    .footer { text-align: center; padding: 20px 16px 8px; font-size: 11px; color: #ccc; }
+    .submit-btn:active { opacity:.85; transform:scale(.98); }
+    .submit-btn:disabled { background:#ddd; color:#aaa; cursor:not-allowed; transform:none; }
+    .history-empty { padding:28px 20px; text-align:center; color:#ccc; font-size:14px; }
+    .history-empty .e { font-size:36px; margin-bottom:8px; }
+    .schedule-item { padding:14px 20px; border-bottom:1px solid #f5f5f5; display:flex; align-items:center; gap:14px; }
+    .schedule-item:last-child { border-bottom:none; }
+    .s-dot { width:9px; height:9px; border-radius:50%; background:#ff2442; flex-shrink:0; }
+    .s-info { flex:1; }
+    .s-date { font-size:12px; color:#aaa; }
+    .s-time { font-size:15px; font-weight:500; margin-top:2px; }
+    .s-badge { display:inline-block; font-size:10px; background:#fff0f2; color:#ff2442; border-radius:4px; padding:2px 6px; margin-top:4px; }
+    .s-gmv { font-size:14px; color:#ff2442; font-weight:600; white-space:nowrap; }
+    .overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:999; align-items:center; justify-content:center; }
+    .overlay.show { display:flex; }
+    .modal { background:white; border-radius:22px; padding:36px 28px; text-align:center; max-width:300px; width:88%; animation:pop .3s ease; }
+    @keyframes pop { from{transform:scale(.75);opacity:0} to{transform:scale(1);opacity:1} }
+    .modal .m-icon { font-size:60px; margin-bottom:12px; }
+    .modal h3 { font-size:19px; font-weight:700; margin-bottom:10px; }
+    .modal p { font-size:14px; color:#666; line-height:1.7; }
+    .modal-btn { margin-top:22px; display:block; width:100%; height:48px; background:linear-gradient(135deg,#ff2442,#ff6b35); color:white; border:none; border-radius:12px; font-size:15px; font-weight:600; cursor:pointer; }
+    .footer { text-align:center; padding:20px 16px 8px; font-size:11px; color:#ccc; }
   </style>
 </head>
 <body>
@@ -252,29 +82,12 @@
 </div>
 
 <div class="support-cards">
-  <div class="support-card">
-    <div class="icon">🚀</div>
-    <div class="label">流量扶持</div>
-    <div class="value">已开启</div>
-  </div>
-  <div class="support-card">
-    <div class="icon">📈</div>
-    <div class="label">首页推荐</div>
-    <div class="value">专属入口</div>
-  </div>
-  <div class="support-card">
-    <div class="icon">🎯</div>
-    <div class="label">精准人群</div>
-    <div class="value">定向投放</div>
-  </div>
-  <div class="support-card">
-    <div class="icon">💎</div>
-    <div class="label">重点商家</div>
-    <div class="value">优先扶持</div>
-  </div>
+  <div class="support-card"><div class="icon">🚀</div><div class="label">流量扶持</div><div class="value">已开启</div></div>
+  <div class="support-card"><div class="icon">📈</div><div class="label">首页推荐</div><div class="value">专属入口</div></div>
+  <div class="support-card"><div class="icon">🎯</div><div class="label">精准人群</div><div class="value">定向投放</div></div>
+  <div class="support-card"><div class="icon">💎</div><div class="label">重点商家</div><div class="value">优先扶持</div></div>
 </div>
 
-<!-- 表单 -->
 <div class="card">
   <div class="card-header">
     <h2>📅 填写直播排期</h2>
@@ -283,51 +96,38 @@
   <div class="card-body">
     <div class="field">
       <label>店铺名称 <span class="req">*</span></label>
-      <div class="select-wrap">
-        <select id="shopName">
-          <option value="">请选择你的店铺</option>
-        </select>
-      </div>
+      <div class="select-wrap"><select id="shopName" name="shopName"><option value="">请选择你的店铺</option></select></div>
     </div>
-
     <div class="field">
       <label>联系微信 <span class="req">*</span></label>
-      <input type="text" id="contact" placeholder="填写微信号，方便有问题联系你">
+      <input type="text" id="contact" name="contact" placeholder="填写微信号，方便有问题联系你">
     </div>
-
     <div class="field">
       <label>直播日期 <span class="req">*</span></label>
-      <input type="date" id="liveDate">
+      <input type="date" id="liveDate" name="liveDate">
     </div>
-
     <div class="time-row">
       <div class="field">
         <label>开播时间 <span class="req">*</span></label>
-        <input type="time" id="startTime">
+        <input type="time" id="startTime" name="startTime">
       </div>
       <div class="field">
         <label>预计结束时间</label>
-        <input type="time" id="endTime">
+        <input type="time" id="endTime" name="endTime">
       </div>
     </div>
-
     <div class="field" style="margin-top:18px">
       <label>预估成交额（万元）</label>
-      <input type="number" id="gmv" placeholder="如：5，填写有助于匹配扶持力度" inputmode="decimal" step="0.1">
+      <input type="number" id="gmv" name="gmv" placeholder="如：5" inputmode="decimal" step="0.1">
       <div class="hint">大场（预估 ≥15万）将获得额外首页推荐资源</div>
     </div>
-
     <button class="submit-btn" id="submitBtn" onclick="submitForm()">提交排期 ✨</button>
   </div>
 </div>
 
-<!-- 历史场次 -->
 <div class="card" id="historyCard" style="display:none">
   <div class="card-header" style="display:flex;align-items:center;justify-content:space-between">
-    <div>
-      <h2>🎬 我的直播记录</h2>
-      <p>已提交的排期场次</p>
-    </div>
+    <div><h2>🎬 我的直播记录</h2><p>已提交的排期场次</p></div>
     <span id="historyBadge" style="background:#fff0f2;color:#ff2442;border-radius:20px;padding:3px 12px;font-size:13px;font-weight:600"></span>
   </div>
   <div id="historyList"></div>
@@ -335,7 +135,6 @@
 
 <div class="footer">小红书电商 · 文玩玉翠行业运营团队</div>
 
-<!-- 成功弹窗 -->
 <div class="overlay" id="overlay">
   <div class="modal">
     <div class="m-icon">🎉</div>
@@ -347,23 +146,17 @@
 
 <script>
 const REPO = 'yichengu99-netizen/lobubu-pages';
+const FORMSPREE = 'https://formspree.io/f/xvgozzpa'; // 用邮件 hash 端点
 
 const SHOPS = ["00后掌翠人婷子","AYAO GEM STUDIO 珠宝的店","CherryWintour的店","Mrose的店","PPGIGI的店","QnJewelry奎恩珠宝的店","Revanna沉香的店","SEETHOU又见兮的店","Shannai Jewellery的店","c瑞云翡翠的店","zahara纯-万能链巨鳄的店","一兴的店","一只肉丸","一夕云手作的店","七七翡翠源头收货中的店","与己出品","中国地质学府店的店","丹丹的月光宝盒的店","丹若珠宝的店","亿顺翡翠珠宝的店","佩的珠宝美学的店","依然美翡翠珠宝的店","兰香序非遗合香旗舰店","冠色珠宝-建政的店","冰芝玉珠宝玉器的店","凝翠珠宝闲置的店","刘姐外贸珠宝的店","华宝沉香堂的店","圣哥玩一下的店","墨宜珠宝|77","墨宜珠宝的店","壁玉阁的店的店","壮壮籽玉的店","壹加壹珠宝珍品馆的店","壹加壹翡翠的店","壹号翡翠店的店","大喻·松风造物的店","大林珠宝严选的店","大梦和田的店","大运河紫檀博物馆的店","太樾官方旗舰店","好运一生珠宝的店","如艺散珠批发的店","妙迦珠宝文玩店的店","婵婵的珠宝盒的店","官太的店","宝香雅楠金丝楠木馆的店","宝鸾珠宝的店","小丁南红优选","小红薯1652449853的店","小青姐和田玉的店","山中月手作的店","山野藏光diy金配饰","山野藏光珠宝定制","山野藏光金配饰工厂的店（大）","常兴玉器的店","广州瑜玥珠宝的店","弓山文藏的店","彝家南红的店","彦祖水晶的店","思成的灵石日记的店","揭阳和田玉工厂（周周）的店","新疆三强玉业的店","映色珠宝翡翠的店","春景珠宝旗舰店","晚隐.匠造的店","景阳珠宝首饰的店","末染珠宝的店","朴玉不拙的店","松岗琥珀蜜蜡交易市场工厂店的店","松石，家里有厂！的店","梵希珠宝甄选的店","檀兮","正花期翡翠（艳儿）的店","汇安沉香文化的店","泽玉袁🏆袁姐的店","涵舍玉雕的店","潘小盒的店","澪一珠宝的店","独一绿松石的店","玉兰花小鱼的店","玉城阁珠宝的店","珠宝千斤的店","瑜宝泰珠宝的店","瑜己YUJI的店","璟亿珠宝的店","甸石翡翠的店","白玉轩的小掌柜的店","白绮梦翠的店","监雷斋的店","目成眉语原创珠宝的店","福宝翠手镯","私饰集高级珠宝旗舰店","素璞珠宝-晓晓的店","紫瑄翡翠珠宝的店","缅翠行的店","美好相玉—Design的店","羲和小筑的店","翠亿庭的店","翠浓翡翠的店","翠童珠宝臻选的店","翠翠甄心选的店","翡翠缘源头甄选的店","老Baby丨玄玑文化的店","肉段～猛犸手作打工人📿的店","芳华翡翠珠宝的店","蓉蓉珠宝臻选手镯的店","藏兜里的店","虎桃夹子的店","谭丽鹏·祝融珍品文玩珠宝的店","金柠珠宝的店","锦物集的店","锦鲤散珠批发的店","镀玉坊珠宝的店","阿俊翡翠戒圈指环的店","阿董珠宝的店","阿郑带你玩2号店的店","阿郑带你玩的店","雯小姐！的店","静缘翡翠的店","饰叶草珠宝二号店的店","饰叶草珠宝的店","香沁丨博玉珠宝的店","香至尊沉香的店","鹏哥美玉的店","黑盘羊沉香旗舰店"];
 
 window.onload = () => {
   const sel = document.getElementById('shopName');
-  SHOPS.forEach(n => {
-    const o = document.createElement('option');
-    o.value = o.textContent = n;
-    sel.appendChild(o);
-  });
-
-  // 默认明天
+  SHOPS.forEach(n => { const o = document.createElement('option'); o.value = o.textContent = n; sel.appendChild(o); });
   const d = new Date(); d.setDate(d.getDate() + 1);
   document.getElementById('liveDate').value = d.toISOString().split('T')[0];
   document.getElementById('liveDate').min = new Date().toISOString().split('T')[0];
-
-  sel.addEventListener('change', () => sel.value ? loadHistory(sel.value) : (document.getElementById('historyCard').style.display = 'none'));
+  sel.addEventListener('change', () => sel.value ? loadHistory(sel.value) : (document.getElementById('historyCard').style.display='none'));
 };
 
 async function loadHistory(shop) {
@@ -371,32 +164,14 @@ async function loadHistory(shop) {
   const list = document.getElementById('historyList');
   card.style.display = 'block';
   list.innerHTML = '<div style="padding:20px;text-align:center;color:#ccc;font-size:14px">加载中...</div>';
-
   try {
     const r = await fetch(`https://raw.githubusercontent.com/${REPO}/main/data/schedules.json?t=${Date.now()}`);
     const all = r.ok ? await r.json() : [];
-    const mine = all.filter(d => d.shopName === shop).sort((a,b) => b.liveDate > a.liveDate ? 1 : -1).slice(0, 15);
-
+    const mine = all.filter(d => d.shopName === shop).sort((a,b) => b.liveDate > a.liveDate ? 1 : -1).slice(0,15);
     document.getElementById('historyBadge').textContent = mine.length + ' 场';
-
-    if (!mine.length) {
-      list.innerHTML = '<div class="history-empty"><div class="e">📭</div>还没有排期记录<br>填写上方表单提交第一场！</div>';
-      return;
-    }
-
-    list.innerHTML = mine.map(item => `
-      <div class="schedule-item">
-        <div class="s-dot"></div>
-        <div class="s-info">
-          <div class="s-date">${item.liveDate}</div>
-          <div class="s-time">${item.startTime}${item.endTime ? ' → ' + item.endTime : ''}</div>
-          ${item.gmv >= 15 ? '<span class="s-badge">🔥 大场扶持</span>' : ''}
-        </div>
-        ${item.gmv ? `<div class="s-gmv">预估${item.gmv}万</div>` : ''}
-      </div>`).join('');
-  } catch {
-    list.innerHTML = '<div class="history-empty"><div class="e">⚠️</div>加载失败，请重试</div>';
-  }
+    if (!mine.length) { list.innerHTML = '<div class="history-empty"><div class="e">📭</div>还没有排期记录<br>填写上方表单提交第一场！</div>'; return; }
+    list.innerHTML = mine.map(item => `<div class="schedule-item"><div class="s-dot"></div><div class="s-info"><div class="s-date">${item.liveDate}</div><div class="s-time">${item.startTime}${item.endTime?' → '+item.endTime:''}</div>${item.gmv>=15?'<span class="s-badge">🔥 大场扶持</span>':''}</div>${item.gmv?`<div class="s-gmv">预估${item.gmv}万</div>`:''}</div>`).join('');
+  } catch { list.innerHTML = '<div class="history-empty"><div class="e">⚠️</div>加载失败，请重试</div>'; }
 }
 
 async function submitForm() {
@@ -413,37 +188,20 @@ async function submitForm() {
   if (!startTime) { alert('请填写开播时间'); return; }
 
   const btn = document.getElementById('submitBtn');
-  btn.disabled = true;
-  btn.textContent = '提交中...';
-
-  const payload = { shopName, contact, liveDate, startTime, endTime, gmv, submittedAt: new Date().toISOString() };
+  btn.disabled = true; btn.textContent = '提交中...';
 
   try {
-    const resp = await fetch(`https://api.github.com/repos/${REPO}/issues`, {
+    const resp = await fetch(FORMSPREE, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
-      body: JSON.stringify({
-        title: `【排期】${shopName} ${liveDate} ${startTime}`,
-        body: JSON.stringify(payload),
-        labels: ['schedule']
-      })
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ shopName, contact, liveDate, startTime, endTime, gmv, submittedAt: new Date().toISOString() })
     });
-
-    if (resp.status === 401 || resp.status === 403) {
-      // Issues API 需要认证，改用备用方案：直接 POST 到 formspree
-      throw new Error('需要认证');
-    }
-
-    if (!resp.ok) throw new Error(await resp.text());
-
+    if (!resp.ok) throw new Error('提交失败');
     document.getElementById('overlay').classList.add('show');
-    setTimeout(() => loadHistory(shopName), 1500);
-  } catch (e) {
-    // 备用：打开邮件/微信提示
-    alert('提交遇到问题，请截图发给运营同学，或直接在群里告知排期信息。\n\n错误：' + e.message);
+  } catch(e) {
+    alert('提交遇到问题，请截图后发给运营同学。');
   } finally {
-    btn.disabled = false;
-    btn.textContent = '提交排期 ✨';
+    btn.disabled = false; btn.textContent = '提交排期 ✨';
   }
 }
 
@@ -452,7 +210,7 @@ function closeModal() {
   document.getElementById('startTime').value = '';
   document.getElementById('endTime').value = '';
   document.getElementById('gmv').value = '';
-  const d = new Date(); d.setDate(d.getDate() + 1);
+  const d = new Date(); d.setDate(d.getDate()+1);
   document.getElementById('liveDate').value = d.toISOString().split('T')[0];
 }
 </script>
