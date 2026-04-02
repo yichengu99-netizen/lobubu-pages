@@ -258,23 +258,9 @@ async function submitForm() {
   btn.disabled = true; btn.textContent = '提交中...';
 
   try {
-    // 读取现有数据
-    const rGet = await fetch(`https://api.github.com/repos/${REPO}/contents/data/schedules.json`, {
-      headers: { Authorization: `token ${_t}`, Accept: 'application/vnd.github.v3+json' }
-    });
-    const fileInfo = await rGet.json();
-    const existingData = JSON.parse(atob(fileInfo.content.replace(/\n/g, '')));
-    existingData.push({ shopName, contact, liveDate, startTime, endTime, gmv, submittedAt: new Date().toISOString() });
-    
-    // 写入新数据
-    const rPut = await fetch(`https://api.github.com/repos/${REPO}/contents/data/schedules.json`, {
-      method: 'PUT',
-      headers: { Authorization: `token ${_t}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: `schedule: ${shopName} ${liveDate}`, content: _utf8ToBase64(JSON.stringify(existingData, null, 2)), sha: fileInfo.sha })
-    });
-    if (!rPut.ok) throw new Error('写入失败');
-    // 直接把新数据插入到历史显示，不等 CDN 缓存刷新
-    _pendingSchedule = { shopName, contact, liveDate, startTime, endTime, gmv, submittedAt: new Date().toISOString() };
+    const newItem = { shopName, contact, liveDate, startTime, endTime, gmv, submittedAt: new Date().toISOString() };
+    await _writeSchedule(newItem);
+    _pendingSchedule = newItem;
     document.getElementById('overlay').classList.add('show');
   } catch(e) {
     alert('提交遇到问题，请截图后发给运营同学。');
