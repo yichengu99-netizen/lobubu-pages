@@ -33,16 +33,12 @@
     .field { margin-bottom:18px; }
     .field label { display:block; font-size:13px; color:#555; font-weight:500; margin-bottom:8px; }
     .req { color:#ff2442; }
-    .field select, .field input {
+    .field input {
       width:100%; height:48px; border:1.5px solid #ebebeb; border-radius:10px;
       padding:0 14px; font-size:15px; color:#1d1d1f; background:#fafafa;
       -webkit-appearance:none; appearance:none; outline:none; transition:border-color .2s,background .2s;
     }
-    .field select:focus, .field input:focus { border-color:#ff2442; background:#fff; }
-    .select-wrap { position:relative; }
-    .select-wrap::after { content:'▾'; position:absolute; right:14px; top:50%; transform:translateY(-50%); color:#bbb; font-size:14px; pointer-events:none; }
-    .time-row { display:flex; gap:10px; }
-    .time-row .field { flex:1; margin-bottom:0; }
+    .field input:focus { border-color:#ff2442; background:#fff; }
     .hint { font-size:11px; color:#bbb; margin-top:5px; }
     .submit-btn {
       display:block; width:100%; height:52px;
@@ -62,8 +58,8 @@
     .s-time { font-size:15px; font-weight:500; margin-top:2px; }
     .s-badge { display:inline-block; font-size:10px; background:#fff0f2; color:#ff2442; border-radius:4px; padding:2px 6px; margin-top:4px; }
     .s-gmv { font-size:14px; color:#ff2442; font-weight:600; white-space:nowrap; }
-    .s-del-btn { background:none; border:none; font-size:18px; color:#ddd; cursor:pointer; padding:4px; flex-shrink:0; transition:color .2s; }
-    .s-del-btn:hover, .s-del-btn:active { color:#ff2442; }
+    .s-del-btn { background:none; border:none; font-size:18px; color:#ddd; cursor:pointer; padding:4px 6px; flex-shrink:0; line-height:1; }
+    .s-del-btn:active { color:#ff2442; }
     .overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:999; align-items:center; justify-content:center; }
     .overlay.show { display:flex; }
     .modal { background:white; border-radius:22px; padding:36px 28px; text-align:center; max-width:300px; width:88%; animation:pop .3s ease; }
@@ -72,20 +68,19 @@
     .modal h3 { font-size:19px; font-weight:700; margin-bottom:10px; }
     .modal p { font-size:14px; color:#666; line-height:1.7; }
     .modal-btn { margin-top:22px; display:block; width:100%; height:48px; background:linear-gradient(135deg,#ff2442,#ff6b35); color:white; border:none; border-radius:12px; font-size:15px; font-weight:600; cursor:pointer; }
-    /* 删除确认弹窗 */
     .del-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; align-items:center; justify-content:center; }
     .del-overlay.show { display:flex; }
     .del-modal { background:white; border-radius:20px; padding:28px 24px; max-width:300px; width:88%; animation:pop .25s ease; }
-    .del-modal h3 { font-size:17px; font-weight:700; margin-bottom:6px; color:#1d1d1f; }
-    .del-modal p { font-size:13px; color:#888; margin-bottom:16px; line-height:1.6; }
-    .del-modal input { width:100%; height:44px; border:1.5px solid #ebebeb; border-radius:10px; padding:0 14px; font-size:15px; outline:none; margin-bottom:14px; }
+    .del-modal h3 { font-size:17px; font-weight:700; margin-bottom:6px; }
+    .del-modal p { font-size:13px; color:#888; margin-bottom:14px; line-height:1.6; }
+    .del-modal input { width:100%; height:44px; border:1.5px solid #ebebeb; border-radius:10px; padding:0 14px; font-size:15px; outline:none; margin-bottom:10px; }
     .del-modal input:focus { border-color:#ff2442; }
-    .del-modal .del-info { font-size:12px; color:#ff8800; background:#fff8e6; border-radius:8px; padding:10px 12px; margin-bottom:16px; line-height:1.6; }
+    .del-info { font-size:12px; color:#ff8800; background:#fff8e6; border-radius:8px; padding:10px 12px; margin-bottom:14px; line-height:1.6; }
     .del-btns { display:flex; gap:10px; }
     .del-btns button { flex:1; height:44px; border:none; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; }
     .del-cancel { background:#f5f5f7; color:#555; }
     .del-confirm { background:linear-gradient(135deg,#ff2442,#ff6b35); color:white; }
-    .del-confirm:disabled { background:#ddd; color:#aaa; cursor:not-allowed; }
+    .del-confirm:disabled { background:#ddd; color:#aaa; }
     .footer { text-align:center; padding:20px 16px 8px; font-size:11px; color:#ccc; }
   </style>
 </head>
@@ -112,32 +107,31 @@
   <div class="card-body">
     <div class="field">
       <label>店铺名称 <span class="req">*</span></label>
-      <div class="select-wrap" style="position:relative">
+      <div style="position:relative">
         <input type="text" id="shopSearch" placeholder="输入店铺名称关键词..." autocomplete="off"
-          style="width:100%;height:48px;border:1.5px solid #ebebeb;border-radius:10px;padding:0 40px 0 14px;font-size:15px;background:#fafafa;outline:none;transition:border-color .2s,background .2s;"
-          >
+          style="width:100%;height:48px;border:1.5px solid #ebebeb;border-radius:10px;padding:0 40px 0 14px;font-size:15px;background:#fafafa;outline:none;transition:border-color .2s,background .2s;">
         <button id="shopClearBtn" onclick="clearShop()" style="display:none;position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:20px;color:#bbb;cursor:pointer;padding:0;line-height:1">×</button>
         <div id="shopDropdown" style="display:none;position:absolute;top:50px;left:0;right:0;background:white;border:1.5px solid #ff2442;border-radius:10px;max-height:220px;overflow-y:auto;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,.12)"></div>
-        <input type="hidden" id="shopName" name="shopName">
+        <input type="hidden" id="shopName">
       </div>
     </div>
     <div class="field">
       <label>联系方式（手机号）<span class="req">*</span></label>
-      <input type="text" id="contact" name="contact" placeholder="填写手机号，方便有问题联系你" type="tel" inputmode="numeric" maxlength="11" pattern="1[0-9]{10}">
+      <input type="tel" id="contact" inputmode="numeric" maxlength="11" placeholder="填写手机号，方便有问题联系你">
     </div>
     <div class="field">
       <label>直播日期 <span class="req">*</span></label>
-      <input type="date" id="liveDate" name="liveDate">
+      <input type="date" id="liveDate">
     </div>
     <div class="field">
       <label>开播时间 <span class="req">*</span></label>
-      <input type="time" id="startTime" name="startTime" oninput="updateEndTime()">
-      <div class="hint" id="endTimeHint" style="margin-top:6px;font-size:12px;color:#aaa;">结束时间：填写开播时间后自动计算</div>
-      <input type="hidden" id="endTime" name="endTime" value="">
+      <input type="time" id="startTime">
+      <div class="hint" id="endTimeHint">结束时间：填写开播时间后自动计算</div>
+      <input type="hidden" id="endTime">
     </div>
-    <div class="field" style="margin-top:18px">
-      <label>预估成交额（万元）</label>
-      <input type="number" id="gmv" name="gmv" placeholder="如：5" inputmode="decimal" step="0.1">
+    <div class="field">
+      <label>预估成交额（万元）<span class="req">*</span></label>
+      <input type="number" id="gmv" placeholder="如：5" inputmode="decimal" step="0.1">
       <div class="hint">大场（预估 ≥15万）将获得额外首页推荐资源</div>
       <div class="hint" style="color:#ff8800;margin-top:3px">⚠️ 必填，不确定可填预估值</div>
     </div>
@@ -178,7 +172,7 @@
 <div class="del-overlay" id="delOverlay">
   <div class="del-modal">
     <h3>🗑️ 删除这条排期？</h3>
-    <p>请输入手机号验证，确认后将删除该条记录</p>
+    <p>输入提报时的手机号验证身份</p>
     <div class="del-info" id="delItemInfo"></div>
     <input type="tel" id="delContact" inputmode="numeric" maxlength="11" placeholder="输入提报时填写的手机号">
     <div class="del-btns">
@@ -190,9 +184,14 @@
 
 <script>
 const REPO = 'yichengu99-netizen/lobubu-pages';
-const _t = ['ghp_teXNPpev', 'GbXC6r9rqe85', 'WbE4CDeO3l3J9bdN'].join('');
+const _t = ['ghp_teXNPpev','GbXC6r9rqe85','WbE4CDeO3l3J9bdN'].join('');
 
 const SHOPS = ["00后掌翠人婷子","AYAO GEM STUDIO 珠宝的店","CherryWintour的店","Mrose的店","PPGIGI的店","QnJewelry奎恩珠宝的店","Revanna沉香的店","SEETHOU又见兮的店","Shannai Jewellery的店","c瑞云翡翠的店","zahara纯-万能链巨鳄的店","一兴的店","一只肉丸","一夕云手作的店","七七翡翠源头收货中的店","与己出品","中国地质学府店的店","丹丹的月光宝盒的店","丹若珠宝的店","亿顺翡翠珠宝的店","佩的珠宝美学的店","依然美翡翠珠宝的店","兰香序非遗合香旗舰店","冠色珠宝-建政的店","冰芝玉珠宝玉器的店","凝翠珠宝闲置的店","刘姐外贸珠宝的店","华宝沉香堂的店","圣哥玩一下的店","墨宜珠宝|77","墨宜珠宝的店","壁玉阁的店的店","壮壮籽玉的店","壹加壹珠宝珍品馆的店","壹加壹翡翠的店","壹号翡翠店的店","大喻·松风造物的店","大林珠宝严选的店","大梦和田的店","大运河紫檀博物馆的店","太樾官方旗舰店","好运一生珠宝的店","如艺散珠批发的店","妙迦珠宝文玩店的店","婵婵的珠宝盒的店","官太的店","宝香雅楠金丝楠木馆的店","宝鸾珠宝的店","小丁南红优选","小红薯1652449853的店","小青姐和田玉的店","山中月手作的店","山野藏光diy金配饰","山野藏光珠宝定制","山野藏光金配饰工厂的店（大）","常兴玉器的店","广州瑜玥珠宝的店","弓山文藏的店","彝家南红的店","彦祖水晶的店","思成的灵石日记的店","揭阳和田玉工厂（周周）的店","新疆三强玉业的店","映色珠宝翡翠的店","春景珠宝旗舰店","晚隐.匠造的店","景阳珠宝首饰的店","末染珠宝的店","朴玉不拙的店","松岗琥珀蜜蜡交易市场工厂店的店","松石，家里有厂！的店","梵希珠宝甄选的店","檀兮","正花期翡翠（艳儿）的店","汇安沉香文化的店","泽玉袁🏆袁姐的店","涵舍玉雕的店","潘小盒的店","澪一珠宝的店","独一绿松石的店","玉兰花小鱼的店","玉城阁珠宝的店","珠宝千斤的店","瑜宝泰珠宝的店","瑜己YUJI的店","璟亿珠宝的店","甸石翡翠的店","白玉轩的小掌柜的店","白绮梦翠的店","监雷斋的店","目成眉语原创珠宝的店","福宝翠手镯","私饰集高级珠宝旗舰店","素璞珠宝-晓晓的店","紫瑄翡翠珠宝的店","缅翠行的店","美好相玉—Design的店","羲和小筑的店","翠亿庭的店","翠浓翡翠的店","翠童珠宝臻选的店","翠翠甄心选的店","翡翠缘源头甄选的店","老Baby丨玄玑文化的店","肉段～猛犸手作打工人📿的店","芳华翡翠珠宝的店","蓉蓉珠宝臻选手镯的店","藏兜里的店","虎桃夹子的店","谭丽鹏·祝融珍品文玩珠宝的店","金柠珠宝的店","锦物集的店","锦鲤散珠批发的店","镀玉坊珠宝的店","阿俊翡翠戒圈指环的店","阿董珠宝的店","阿郑带你玩2号店的店","阿郑带你玩的店","雯小姐！的店","静缘翡翠的店","饰叶草珠宝二号店的店","饰叶草珠宝的店","香沁丨博玉珠宝的店","香至尊沉香的店","鹏哥美玉的店","黑盘羊沉香旗舰店"];
+
+// 全局存当前商家的历史列表（用index引用，避免onclick里传复杂对象）
+let _mySchedules = [];
+let _pendingSchedule = null;
+let _delIdx = -1;
 
 function filterShops(val) {
   const dropdown = document.getElementById('shopDropdown');
@@ -200,12 +199,18 @@ function filterShops(val) {
   document.getElementById('shopClearBtn').style.display = kw ? 'block' : 'none';
   if (!kw) document.getElementById('shopName').value = '';
   const matches = kw ? SHOPS.filter(s => s.includes(kw)) : SHOPS.slice(0, 20);
-  if (!matches.length) { dropdown.style.display='none'; return; }
-  dropdown.innerHTML = matches.map(s => {
-    const safe = s.replace(/'/g, "\\'");
-    const highlighted = kw ? s.split(kw).join(`<b style="color:#ff2442">${kw}</b>`) : s;
-    return `<div onclick="selectShop('${safe}')" style="padding:13px 16px;font-size:15px;cursor:pointer;border-bottom:1px solid #f5f5f5" ontouchstart="this.style.background='#fff0f2'" ontouchend="this.style.background=''">${highlighted}</div>`;
+  if (!matches.length) { dropdown.style.display = 'none'; return; }
+  dropdown.innerHTML = matches.map((s, i) => {
+    const highlighted = kw ? s.replace(new RegExp(kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'g'), `<b style="color:#ff2442">${kw}</b>`) : s;
+    return `<div data-shop="${i}" style="padding:13px 16px;font-size:15px;cursor:pointer;border-bottom:1px solid #f5f5f5">${highlighted}</div>`;
   }).join('');
+  // 用事件委托，避免onclick属性传中文字符串
+  dropdown.querySelectorAll('[data-shop]').forEach(el => {
+    el.addEventListener('mousedown', () => {
+      const idx = parseInt(el.getAttribute('data-shop'));
+      selectShop(matches[idx]);
+    });
+  });
   dropdown.style.display = 'block';
 }
 
@@ -227,205 +232,222 @@ function clearShop() {
   document.getElementById('historyCard').style.display = 'none';
   document.getElementById('contact').value = '';
   _pendingSchedule = null;
+  _mySchedules = [];
 }
 
 function hideDropdown() {
-  setTimeout(() => { document.getElementById('shopDropdown').style.display = 'none'; }, 200);
+  setTimeout(() => { document.getElementById('shopDropdown').style.display = 'none'; }, 150);
 }
 
-window.onload = () => {
-  const d = new Date(); d.setDate(d.getDate() + 1);
+window.onload = function() {
+  var d = new Date(); d.setDate(d.getDate() + 1);
   document.getElementById('liveDate').value = d.toISOString().split('T')[0];
   document.getElementById('liveDate').min = new Date().toISOString().split('T')[0];
-  const inp = document.getElementById('shopSearch');
-  inp.addEventListener('input', () => filterShops(inp.value));
-  inp.addEventListener('focus', () => filterShops(inp.value));
+  var inp = document.getElementById('shopSearch');
+  inp.addEventListener('input', function(){ filterShops(inp.value); });
+  inp.addEventListener('focus', function(){ filterShops(inp.value); });
   inp.addEventListener('blur', hideDropdown);
   document.getElementById('startTime').addEventListener('input', updateEndTime);
   document.getElementById('startTime').addEventListener('change', updateEndTime);
 };
 
-let _pendingSchedule = null;
-// 待删除记录
-let _delTarget = null;
-
 function updateEndTime() {
-  const val = document.getElementById('startTime').value;
+  var val = document.getElementById('startTime').value;
   if (!val) return;
-  const [h, m] = val.split(':').map(Number);
-  let endH = h + 4, endM = m;
-  if (endH > 23 || (endH === 23 && endM > 58)) { endH = 23; endM = 58; }
-  const endStr = `${String(endH).padStart(2,'0')}:${String(endM).padStart(2,'0')}`;
+  var parts = val.split(':');
+  var h = parseInt(parts[0]), m = parseInt(parts[1]);
+  var endH = h + 4, endM = m;
+  if (endH >= 24) { endH = 23; endM = 58; }
+  var endStr = (endH < 10 ? '0' : '') + endH + ':' + (endM < 10 ? '0' : '') + endM;
   document.getElementById('endTime').value = endStr;
-  document.getElementById('endTimeHint').textContent = `结束时间：${endStr}（开播后4小时）`;
+  document.getElementById('endTimeHint').textContent = '结束时间：' + endStr + '（开播后4小时）';
 }
 
 function _utf8ToBase64(str) {
-  return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (_, p1) => String.fromCharCode(parseInt(p1, 16))));
+  return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(_, p1){ return String.fromCharCode(parseInt(p1, 16)); }));
 }
 
-async function _writeSchedule(newItem, retries = 3) {
-  for (let i = 0; i < retries; i++) {
-    const rGet = await fetch(`https://api.github.com/repos/${REPO}/contents/data/schedules.json`, {
-      headers: { Authorization: `token ${_t}`, Accept: 'application/vnd.github.v3+json' }
-    });
-    if (!rGet.ok) throw new Error('读取失败 ' + rGet.status);
-    const fileInfo = await rGet.json();
-    const existingData = JSON.parse(decodeURIComponent(escape(atob(fileInfo.content.replace(/\n/g, '')))));
-    const isDup = existingData.some(d => d.shopName === newItem.shopName && d.liveDate === newItem.liveDate && d.startTime === newItem.startTime);
+async function _readFile() {
+  var r = await fetch('https://api.github.com/repos/' + REPO + '/contents/data/schedules.json', {
+    headers: { Authorization: 'token ' + _t, Accept: 'application/vnd.github.v3+json' }
+  });
+  if (!r.ok) throw new Error('读取失败 ' + r.status);
+  var fileInfo = await r.json();
+  var data = JSON.parse(decodeURIComponent(escape(atob(fileInfo.content.replace(/\n/g, '')))));
+  return { data, sha: fileInfo.sha };
+}
+
+async function _writeFile(data, sha, message) {
+  var r = await fetch('https://api.github.com/repos/' + REPO + '/contents/data/schedules.json', {
+    method: 'PUT',
+    headers: { Authorization: 'token ' + _t, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message, content: _utf8ToBase64(JSON.stringify(data, null, 2)), sha })
+  });
+  return r;
+}
+
+async function _writeSchedule(newItem, retries) {
+  retries = retries || 3;
+  for (var i = 0; i < retries; i++) {
+    var f = await _readFile();
+    var isDup = f.data.some(function(d){ return d.shopName === newItem.shopName && d.liveDate === newItem.liveDate && d.startTime === newItem.startTime; });
     if (isDup) throw new Error('DUPLICATE');
-    existingData.push(newItem);
-    const rPut = await fetch(`https://api.github.com/repos/${REPO}/contents/data/schedules.json`, {
-      method: 'PUT',
-      headers: { Authorization: `token ${_t}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: `schedule: ${newItem.shopName} ${newItem.liveDate}`, content: _utf8ToBase64(JSON.stringify(existingData, null, 2)), sha: fileInfo.sha })
-    });
+    f.data.push(newItem);
+    var rPut = await _writeFile(f.data, f.sha, 'schedule: ' + newItem.shopName + ' ' + newItem.liveDate);
     if (rPut.status === 200 || rPut.status === 201) return true;
     if (rPut.status !== 409) throw new Error('写入失败 ' + rPut.status);
-    await new Promise(r => setTimeout(r, 500 + Math.random() * 500));
+    await new Promise(function(r){ setTimeout(r, 600 + Math.random()*400); });
   }
   throw new Error('写入失败，请重试');
 }
 
-async function _deleteSchedule(targetItem, retries = 3) {
-  for (let i = 0; i < retries; i++) {
-    const rGet = await fetch(`https://api.github.com/repos/${REPO}/contents/data/schedules.json`, {
-      headers: { Authorization: `token ${_t}`, Accept: 'application/vnd.github.v3+json' }
-    });
-    if (!rGet.ok) throw new Error('读取失败 ' + rGet.status);
-    const fileInfo = await rGet.json();
-    const existingData = JSON.parse(decodeURIComponent(escape(atob(fileInfo.content.replace(/\n/g, '')))));
-    // 找到要删除的记录（用 submittedAt 精确匹配）
-    const idx = existingData.findIndex(d => d.submittedAt === targetItem.submittedAt);
-    if (idx === -1) return true; // 已不存在，视为成功
-    // 验证手机号
-    if (existingData[idx].contact !== targetItem.contact) throw new Error('WRONG_CONTACT');
-    existingData.splice(idx, 1);
-    const rPut = await fetch(`https://api.github.com/repos/${REPO}/contents/data/schedules.json`, {
-      method: 'PUT',
-      headers: { Authorization: `token ${_t}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: `delete: ${targetItem.shopName} ${targetItem.liveDate}`, content: _utf8ToBase64(JSON.stringify(existingData, null, 2)), sha: fileInfo.sha })
-    });
+async function _deleteSchedule(idx, contact, retries) {
+  retries = retries || 3;
+  for (var i = 0; i < retries; i++) {
+    var f = await _readFile();
+    // 按 submittedAt 找（idx是本地排序后的位置，用submittedAt更可靠）
+    var target = _mySchedules[idx];
+    var pos = f.data.findIndex(function(d){ return d.submittedAt === target.submittedAt; });
+    if (pos === -1) return true;
+    if (f.data[pos].contact !== contact) throw new Error('WRONG_CONTACT');
+    f.data.splice(pos, 1);
+    var rPut = await _writeFile(f.data, f.sha, 'delete: ' + target.shopName + ' ' + target.liveDate);
     if (rPut.status === 200 || rPut.status === 201) return true;
-    if (rPut.status !== 409) throw new Error('写入失败 ' + rPut.status);
-    await new Promise(r => setTimeout(r, 500 + Math.random() * 500));
+    if (rPut.status !== 409) throw new Error('删除失败 ' + rPut.status);
+    await new Promise(function(r){ setTimeout(r, 600 + Math.random()*400); });
   }
   throw new Error('删除失败，请重试');
 }
 
-function openDelModal(item) {
-  _delTarget = item;
-  document.getElementById('delItemInfo').textContent = `${item.liveDate} ${item.startTime} 预估${item.gmv || '?'}万`;
+function openDelModal(idx) {
+  _delIdx = idx;
+  var item = _mySchedules[idx];
+  document.getElementById('delItemInfo').textContent = item.liveDate + ' ' + item.startTime + ' 预估' + (item.gmv || '?') + '万';
   document.getElementById('delContact').value = '';
   document.getElementById('delOverlay').classList.add('show');
 }
 
 function closeDelModal() {
   document.getElementById('delOverlay').classList.remove('show');
-  _delTarget = null;
+  _delIdx = -1;
 }
 
 async function confirmDelete() {
-  if (!_delTarget) return;
-  const contact = document.getElementById('delContact').value.trim();
+  if (_delIdx < 0) return;
+  var contact = document.getElementById('delContact').value.trim();
   if (!contact || !/^1[0-9]{10}$/.test(contact)) { alert('请填写正确的11位手机号'); return; }
-  const btn = document.getElementById('delConfirmBtn');
+  var btn = document.getElementById('delConfirmBtn');
   btn.disabled = true; btn.textContent = '删除中...';
   try {
-    await _deleteSchedule({ ..._delTarget, contact });
+    await _deleteSchedule(_delIdx, contact);
     closeDelModal();
-    const shop = document.getElementById('shopName').value;
+    var shop = document.getElementById('shopName').value;
     if (shop) loadHistory(shop);
   } catch(e) {
-    if (e.message === 'WRONG_CONTACT') {
-      alert('手机号不匹配，无法删除');
-    } else {
-      alert('删除失败，请稍后重试');
-    }
+    if (e.message === 'WRONG_CONTACT') alert('手机号不匹配，无法删除');
+    else alert('删除失败，请稍后重试');
   } finally {
     btn.disabled = false; btn.textContent = '确认删除';
   }
 }
 
+function renderLevel(total) {
+  var levelBar = document.getElementById('levelBar');
+  var levelStatus = document.getElementById('levelStatus');
+  var levelProgress = document.getElementById('levelProgress');
+  var levelHint = document.getElementById('levelHint');
+  levelBar.style.display = 'block';
+  if (total === 0) {
+    levelStatus.innerHTML = '<span style="color:#ccc">⚫ 流量扶持未开启</span>';
+    levelProgress.style.width = '0%'; levelProgress.style.background = '#ddd';
+    levelHint.textContent = '提报直播排期，解锁流量扶持资格';
+  } else if (total < 5) {
+    levelStatus.innerHTML = '<span style="color:#ff8800">🔒 再提报 ' + (5-total) + ' 场，解锁官方加热</span>';
+    levelProgress.style.width = (total/5*100) + '%'; levelProgress.style.background = '#ffb300';
+    levelHint.textContent = '不足5场视为无计划开播，不分配流量资源';
+  } else if (total < 10) {
+    levelStatus.innerHTML = '<span style="color:#52c41a">✅ 官方加热</span> <span style="color:#aaa;font-size:11px">再提报' + (10-total) + '场升级</span>';
+    levelProgress.style.width = (total/10*100) + '%'; levelProgress.style.background = 'linear-gradient(90deg,#52c41a,#95de64)';
+    levelHint.textContent = '已解锁流量扶持 · 提报10场解锁流量加成';
+  } else if (total < 20) {
+    levelStatus.innerHTML = '<span style="color:#1890ff">⚡ 流量加成</span> <span style="color:#aaa;font-size:11px">再提报' + (20-total) + '场升级</span>';
+    levelProgress.style.width = (total/20*100) + '%'; levelProgress.style.background = 'linear-gradient(90deg,#1890ff,#69c0ff)';
+    levelHint.textContent = '已解锁流量加成 · 提报20场解锁专属扶持资源';
+  } else {
+    levelStatus.innerHTML = '<span style="color:#ff2442">🔥 专属扶持资源</span>';
+    levelProgress.style.width = '100%'; levelProgress.style.background = 'linear-gradient(90deg,#ff2442,#ff6b35)';
+    levelHint.textContent = '已解锁最高等级扶持 · 运营将主动联系你';
+  }
+}
+
 async function loadHistory(shop) {
-  const card = document.getElementById('historyCard');
-  const list = document.getElementById('historyList');
+  var card = document.getElementById('historyCard');
+  var list = document.getElementById('historyList');
   card.style.display = 'block';
   list.innerHTML = '<div style="padding:20px;text-align:center;color:#ccc;font-size:14px">加载中...</div>';
   try {
-    const r = await fetch(`https://api.github.com/repos/${REPO}/contents/data/schedules.json`, {
-      headers: { Authorization: `token ${_t}`, Accept: 'application/vnd.github.v3+json' }
-    });
-    const fileInfo = r.ok ? await r.json() : null;
-    let all = fileInfo ? JSON.parse(decodeURIComponent(escape(atob(fileInfo.content.replace(/\n/g, ''))))) : [];
+    var f = await _readFile();
+    var all = f.data;
     if (_pendingSchedule && _pendingSchedule.shopName === shop) {
-      const isDup = all.some(d => d.submittedAt === _pendingSchedule.submittedAt);
-      if (!isDup) all = [_pendingSchedule, ...all];
+      var isDup = all.some(function(d){ return d.submittedAt === _pendingSchedule.submittedAt; });
+      if (!isDup) all = [_pendingSchedule].concat(all);
     }
-    const mine = all.filter(d => d.shopName === shop).sort((a,b) => (b.liveDate+b.startTime) > (a.liveDate+a.startTime) ? 1 : -1);
-    const total = mine.length;
-    const totalGmv = mine.reduce((s, d) => s + (parseFloat(d.gmv) || 0), 0);
+    var mine = all.filter(function(d){ return d.shopName === shop; })
+      .sort(function(a,b){ return (b.liveDate+b.startTime) > (a.liveDate+a.startTime) ? 1 : -1; });
+    _mySchedules = mine; // 存到全局，用index引用
+
+    var total = mine.length;
+    var totalGmv = mine.reduce(function(s,d){ return s + (parseFloat(d.gmv)||0); }, 0);
     document.getElementById('historyBadge').textContent = total + ' 场';
-    document.getElementById('historySubtitle').textContent = `已提报 ${total} 场 · 计划成交 ${totalGmv.toFixed(1)} 万`;
+    document.getElementById('historySubtitle').textContent = '已提报 ' + total + ' 场 · 计划成交 ' + totalGmv.toFixed(1) + ' 万';
+    renderLevel(total);
 
-    const levelBar = document.getElementById('levelBar');
-    const levelStatus = document.getElementById('levelStatus');
-    const levelProgress = document.getElementById('levelProgress');
-    const levelHint = document.getElementById('levelHint');
-    levelBar.style.display = 'block';
-
-    if (total === 0) {
-      levelStatus.innerHTML = '<span style="color:#ccc">⚫ 流量扶持未开启</span>';
-      levelProgress.style.width = '0%';
-      levelProgress.style.background = '#ddd';
-      levelHint.textContent = '提报直播排期，解锁流量扶持资格';
-    } else if (total < 5) {
-      levelStatus.innerHTML = `<span style="color:#ff8800">🔒 再提报 ${5-total} 场，解锁官方加热</span>`;
-      levelProgress.style.width = (total/5*100) + '%';
-      levelProgress.style.background = '#ffb300';
-      levelHint.textContent = '不足5场视为无计划开播，不分配流量资源';
-    } else if (total < 10) {
-      levelStatus.innerHTML = '<span style="color:#52c41a">✅ 官方加热</span>　<span style="color:#aaa;font-size:11px">再提报 ' + (10-total) + ' 场升级</span>';
-      levelProgress.style.width = (total/10*100) + '%';
-      levelProgress.style.background = 'linear-gradient(90deg,#52c41a,#95de64)';
-      levelHint.textContent = '已解锁流量扶持 · 提报10场解锁流量加成';
-    } else if (total < 20) {
-      levelStatus.innerHTML = '<span style="color:#1890ff">⚡ 流量加成</span>　<span style="color:#aaa;font-size:11px">再提报 ' + (20-total) + ' 场升级</span>';
-      levelProgress.style.width = (total/20*100) + '%';
-      levelProgress.style.background = 'linear-gradient(90deg,#1890ff,#69c0ff)';
-      levelHint.textContent = '已解锁流量加成 · 提报20场解锁专属扶持资源';
-    } else {
-      levelStatus.innerHTML = '<span style="color:#ff2442">🔥 专属扶持资源</span>';
-      levelProgress.style.width = '100%';
-      levelProgress.style.background = 'linear-gradient(90deg,#ff2442,#ff6b35)';
-      levelHint.textContent = '已解锁最高等级扶持 · 运营将主动联系你';
+    if (!total) {
+      list.innerHTML = '<div class="history-empty"><div class="e">📭</div>还没有排期记录<br>填写上方表单提交第一场！</div>';
+      return;
     }
-
-    if (!total) { list.innerHTML = '<div class="history-empty"><div class="e">📭</div>还没有排期记录<br>填写上方表单提交第一场！</div>'; return; }
-    const showBadge = total >= 5;
-    list.innerHTML = mine.map(item => {
-      const itemStr = JSON.stringify(item).replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/'/g,"\\'");
-      return `<div class="schedule-item">
-        <div class="s-dot"></div>
-        <div class="s-info">
-          <div class="s-date">${item.liveDate}</div>
-          <div class="s-time">${item.startTime}${item.endTime?' → '+item.endTime:''}</div>
-          ${showBadge?(item.gmv>=15?'<span class="s-badge">🔥 大场扶持</span>':'<span class="s-badge" style="background:#fff8e6;color:#ff8800">⚡ 官方加热</span>'):''}
-        </div>
-        ${item.gmv?`<div class="s-gmv">预估${item.gmv}万</div>`:''}
-        <button class="s-del-btn" onclick='openDelModal(${JSON.stringify(item)})' title="删除此排期">🗑️</button>
-      </div>`;
-    }).join('');
-  } catch(e) { list.innerHTML = '<div class="history-empty"><div class="e">⚠️</div>加载失败，请重试</div>'; }
+    var showBadge = total >= 5;
+    var html = '';
+    for (var i = 0; i < mine.length; i++) {
+      var item = mine[i];
+      var badge = '';
+      if (showBadge) {
+        badge = item.gmv >= 15
+          ? '<span class="s-badge">🔥 大场扶持</span>'
+          : '<span class="s-badge" style="background:#fff8e6;color:#ff8800">⚡ 官方加热</span>';
+      }
+      var gmvStr = item.gmv ? '<div class="s-gmv">预估' + item.gmv + '万</div>' : '';
+      html += '<div class="schedule-item">' +
+        '<div class="s-dot"></div>' +
+        '<div class="s-info">' +
+          '<div class="s-date">' + item.liveDate + '</div>' +
+          '<div class="s-time">' + item.startTime + (item.endTime ? ' → ' + item.endTime : '') + '</div>' +
+          badge +
+        '</div>' +
+        gmvStr +
+        '<button class="s-del-btn" data-idx="' + i + '" title="删除此排期">🗑️</button>' +
+      '</div>';
+    }
+    list.innerHTML = html;
+    // 事件委托绑定删除按钮
+    list.querySelectorAll('.s-del-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        openDelModal(parseInt(btn.getAttribute('data-idx')));
+      });
+    });
+  } catch(e) {
+    list.innerHTML = '<div class="history-empty"><div class="e">⚠️</div>加载失败，请刷新重试</div>';
+  }
 }
 
 async function submitForm() {
-  const shopName = document.getElementById('shopName').value;
-  const contact = document.getElementById('contact').value.trim();
-  const liveDate = document.getElementById('liveDate').value;
-  const startTime = document.getElementById('startTime').value;
-  const endTime = document.getElementById('endTime').value;
-  const gmv = parseFloat(document.getElementById('gmv').value) || null;
+  var shopName = document.getElementById('shopName').value;
+  var contact = document.getElementById('contact').value.trim();
+  var liveDate = document.getElementById('liveDate').value;
+  var startTime = document.getElementById('startTime').value;
+  var endTime = document.getElementById('endTime').value;
+  var gmvRaw = document.getElementById('gmv').value;
+  var gmv = parseFloat(gmvRaw) || null;
 
   if (!shopName) { alert('请选择店铺名称'); return; }
   if (!contact) { alert('请填写联系方式'); return; }
@@ -434,11 +456,11 @@ async function submitForm() {
   if (!startTime) { alert('请填写开播时间'); return; }
   if (!gmv || gmv <= 0) { alert('请填写预估成交额'); return; }
 
-  const btn = document.getElementById('submitBtn');
+  var btn = document.getElementById('submitBtn');
   btn.disabled = true; btn.textContent = '提交中...';
 
   try {
-    const newItem = { shopName, contact, liveDate, startTime, endTime, gmv, submittedAt: new Date().toISOString() };
+    var newItem = { shopName, contact, liveDate, startTime, endTime, gmv, submittedAt: new Date().toISOString() };
     await _writeSchedule(newItem);
     _pendingSchedule = newItem;
     document.getElementById('overlay').classList.add('show');
@@ -446,7 +468,7 @@ async function submitForm() {
     if (e.message === 'DUPLICATE') {
       alert('该日期和开播时间已提报过，请勿重复提交！');
     } else {
-      alert('网络繁忙，提交失败，请稍等几秒后重试。\n如果多次失败请联系运营同学。');
+      alert('网络繁忙，提交失败，请稍等几秒后重试。\n多次失败请联系运营同学。');
     }
   } finally {
     btn.disabled = false; btn.textContent = '提交排期 ✨';
@@ -457,9 +479,11 @@ function closeModal() {
   document.getElementById('overlay').classList.remove('show');
   document.getElementById('startTime').value = '';
   document.getElementById('gmv').value = '';
-  const d = new Date(); d.setDate(d.getDate()+1);
+  document.getElementById('endTime').value = '';
+  document.getElementById('endTimeHint').textContent = '结束时间：填写开播时间后自动计算';
+  var d = new Date(); d.setDate(d.getDate()+1);
   document.getElementById('liveDate').value = d.toISOString().split('T')[0];
-  const shop = _pendingSchedule ? _pendingSchedule.shopName : document.getElementById('shopName').value;
+  var shop = _pendingSchedule ? _pendingSchedule.shopName : document.getElementById('shopName').value;
   if (shop) loadHistory(shop);
 }
 </script>
