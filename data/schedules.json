@@ -2419,14 +2419,5 @@
     "endTime": "22:00",
     "gmv": 20,
     "submittedAt": "2026-04-03T11:50:00.000Z"
-  },
-  {
-    "shopName": "TEST_DEL",
-    "contact": "10000000000",
-    "liveDate": "2099-12-31",
-    "startTime": "00:00",
-    "endTime": "04:00",
-    "gmv": 1,
-    "submittedAt": "2099-12-31T00:00:00.000Z"
   }
 ]
