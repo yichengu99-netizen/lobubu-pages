@@ -2419,5 +2419,14 @@
     "endTime": "22:00",
     "gmv": 20,
     "submittedAt": "2026-04-03T11:50:00.000Z"
+  },
+  {
+    "shopName": "思成的灵石日记的店",
+    "contact": "18268134114",
+    "liveDate": "2099-01-01",
+    "startTime": "10:00",
+    "endTime": "14:00",
+    "gmv": 1,
+    "submittedAt": "2099-01-01T00:00:00.000Z"
   }
 ]
