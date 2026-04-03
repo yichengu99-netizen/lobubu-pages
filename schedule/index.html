@@ -58,8 +58,8 @@
     .s-time { font-size:15px; font-weight:500; margin-top:2px; }
     .s-badge { display:inline-block; font-size:10px; background:#fff0f2; color:#ff2442; border-radius:4px; padding:2px 6px; margin-top:4px; }
     .s-gmv { font-size:14px; color:#ff2442; font-weight:600; white-space:nowrap; }
-    .s-del-btn { background:none; border:none; font-size:18px; color:#ddd; cursor:pointer; padding:4px 6px; flex-shrink:0; line-height:1; }
-    .s-del-btn:active { color:#ff2442; }
+    .s-del-btn { background:none; border:none; font-size:15px; color:#ddd; cursor:pointer; padding:4px 6px; flex-shrink:0; line-height:1; border-radius:6px; transition:all .2s; }
+    .s-del-btn.armed { background:#fff0f2; color:#ff2442; font-size:12px; font-weight:600; padding:4px 8px; }
     .overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:999; align-items:center; justify-content:center; }
     .overlay.show { display:flex; }
     .modal { background:white; border-radius:22px; padding:36px 28px; text-align:center; max-width:300px; width:88%; animation:pop .3s ease; }
@@ -305,21 +305,65 @@ async function _deleteSchedule(idx) {
   throw new Error('删除失败，请重试');
 }
 
-async function handleDelete(idx) {
-  var target = _mySchedules[idx];
-  if (!target) { alert('记录不存在，请刷新页面重试'); return; }
-  if (!confirm(target.liveDate + ' ' + target.startTime + '\n确认删除这条排期？')) return;
+// 两步删除：第一次点变红"确认删除"，第二次点才真删，不依赖confirm/alert
+var _armedIdx = -1;
+var _armedTimer = null;
+
+function handleDelete(idx) {
   var btn = document.querySelector('.s-del-btn[data-idx="' + idx + '"]');
+  if (!btn) return;
+  // 如果点的不是当前armed的，先重置
+  if (_armedIdx !== idx) {
+    resetArmed();
+    _armedIdx = idx;
+    btn.classList.add('armed');
+    btn.textContent = '确认删除';
+    // 3秒后自动复位
+    _armedTimer = setTimeout(resetArmed, 3000);
+    return;
+  }
+  // 第二次点，真删
+  resetArmed();
+  doDelete(idx, btn);
+}
+
+function resetArmed() {
+  if (_armedTimer) { clearTimeout(_armedTimer); _armedTimer = null; }
+  if (_armedIdx >= 0) {
+    var oldBtn = document.querySelector('.s-del-btn[data-idx="' + _armedIdx + '"]');
+    if (oldBtn) { oldBtn.classList.remove('armed'); oldBtn.textContent = '🗑️'; oldBtn.disabled = false; }
+  }
+  _armedIdx = -1;
+}
+
+async function doDelete(idx, btn) {
+  var target = _mySchedules[idx];
+  if (!target) { showMsg('记录不存在，请刷新页面重试', 'error'); return; }
   if (btn) { btn.disabled = true; btn.textContent = '⏳'; }
   try {
     await _deleteSchedule(idx);
     var shop = document.getElementById('shopName').value;
     if (shop) await loadHistory(shop);
   } catch(e) {
-    alert('删除失败：' + (e && e.message ? e.message : '未知错误') + '\n请刷新页面后重试');
-  } finally {
+    showMsg('删除失败：' + (e && e.message ? e.message : '未知错误'), 'error');
     if (btn) { btn.disabled = false; btn.textContent = '🗑️'; }
   }
+}
+
+function showMsg(msg, type) {
+  var el = document.getElementById('_toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = '_toast';
+    el.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;max-width:80vw;text-align:center;transition:opacity .3s;';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.background = type === 'error' ? '#ff2442' : '#1d1d1f';
+  el.style.color = 'white';
+  el.style.opacity = '1';
+  clearTimeout(el._t);
+  el._t = setTimeout(function(){ el.style.opacity = '0'; }, 2500);
 }
 
 function renderLevel(total) {
@@ -401,7 +445,8 @@ async function loadHistory(shop) {
     }
     list.innerHTML = html;
     list.querySelectorAll('.s-del-btn').forEach(function(btn) {
-      btn.addEventListener('click', function() {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
         handleDelete(parseInt(btn.getAttribute('data-idx')));
       });
     });
