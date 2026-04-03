@@ -289,59 +289,55 @@ async function _writeSchedule(newItem, retries) {
   throw new Error('写入失败，请重试');
 }
 
-async function _deleteSchedule(idx) {
-  var target = _mySchedules[idx];
-  if (!target) throw new Error('记录不存在');
+async function _deleteBySubmittedAt(submittedAt, shopName) {
   for (var i = 0; i < 3; i++) {
     var f = await _readFile();
-    var pos = f.data.findIndex(function(d){ return d.submittedAt === target.submittedAt; });
-    if (pos === -1) return true;
+    var pos = f.data.findIndex(function(d){ return d.submittedAt === submittedAt; });
+    if (pos === -1) return true; // 已不存在
+    var item = f.data[pos];
     f.data.splice(pos, 1);
-    var rPut = await _writeFile(f.data, f.sha, 'delete: ' + target.shopName + ' ' + target.liveDate);
+    var rPut = await _writeFile(f.data, f.sha, 'delete: ' + item.shopName + ' ' + item.liveDate);
     if (rPut.status === 200 || rPut.status === 201) return true;
-    if (rPut.status !== 409) throw new Error('删除失败 ' + rPut.status);
-    await new Promise(function(r){ setTimeout(r, 600 + Math.random()*400); });
+    if (rPut.status !== 409) throw new Error('写入失败 ' + rPut.status);
+    await new Promise(function(r){ setTimeout(r, 600 + Math.random() * 400); });
   }
   throw new Error('删除失败，请重试');
 }
 
-// 两步删除：第一次点变红"确认删除"，第二次点才真删，不依赖confirm/alert
-var _armedIdx = -1;
+// 两步删除：第一次点变红，第二次才真删，用 data-sat 存 submittedAt，不依赖全局变量
+var _armedSat = null;
 var _armedTimer = null;
 
-function handleDelete(idx) {
-  var btn = document.querySelector('.s-del-btn[data-idx="' + idx + '"]');
-  if (!btn) return;
-  // 如果点的不是当前armed的，先重置
-  if (_armedIdx !== idx) {
+function handleDelete(btn) {
+  var sat = btn.getAttribute('data-sat');
+  if (!sat) { showMsg('记录异常，请刷新重试', 'error'); return; }
+  if (_armedSat !== sat) {
     resetArmed();
-    _armedIdx = idx;
+    _armedSat = sat;
     btn.classList.add('armed');
     btn.textContent = '确认删除';
-    // 3秒后自动复位
     _armedTimer = setTimeout(resetArmed, 3000);
     return;
   }
   // 第二次点，真删
   resetArmed();
-  doDelete(idx, btn);
+  doDelete(sat, btn);
 }
 
 function resetArmed() {
   if (_armedTimer) { clearTimeout(_armedTimer); _armedTimer = null; }
-  if (_armedIdx >= 0) {
-    var oldBtn = document.querySelector('.s-del-btn[data-idx="' + _armedIdx + '"]');
+  if (_armedSat) {
+    var oldBtn = document.querySelector('.s-del-btn[data-sat="' + _armedSat + '"]');
     if (oldBtn) { oldBtn.classList.remove('armed'); oldBtn.textContent = '🗑️'; oldBtn.disabled = false; }
   }
-  _armedIdx = -1;
+  _armedSat = null;
 }
 
-async function doDelete(idx, btn) {
-  var target = _mySchedules[idx];
-  if (!target) { showMsg('记录不存在，请刷新页面重试', 'error'); return; }
+async function doDelete(sat, btn) {
   if (btn) { btn.disabled = true; btn.textContent = '⏳'; }
   try {
-    await _deleteSchedule(idx);
+    await _deleteBySubmittedAt(sat);
+    showMsg('删除成功 ✓', 'ok');
     var shop = document.getElementById('shopName').value;
     if (shop) await loadHistory(shop);
   } catch(e) {
@@ -440,14 +436,14 @@ async function loadHistory(shop) {
           badge +
         '</div>' +
         gmvStr +
-        '<button class="s-del-btn" data-idx="' + i + '" title="删除此排期">🗑️</button>' +
+        '<button class="s-del-btn" data-sat="' + item.submittedAt + '" title="删除此排期">🗑️</button>' +
       '</div>';
     }
     list.innerHTML = html;
     list.querySelectorAll('.s-del-btn').forEach(function(btn) {
       btn.addEventListener('click', function(e) {
         e.stopPropagation();
-        handleDelete(parseInt(btn.getAttribute('data-idx')));
+        handleDelete(btn);
       });
     });
   } catch(e) {
