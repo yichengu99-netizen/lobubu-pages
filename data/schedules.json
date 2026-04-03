@@ -1807,5 +1807,14 @@
     "endTime": "18:00",
     "gmv": 2,
     "submittedAt": "2026-04-03T11:51:38.072Z"
+  },
+  {
+    "shopName": "一只肉丸",
+    "contact": "13163302291",
+    "liveDate": "2026-04-09",
+    "startTime": "19:00",
+    "endTime": "23:00",
+    "gmv": 150,
+    "submittedAt": "2026-04-03T11:52:08.547Z"
   }
 ]
