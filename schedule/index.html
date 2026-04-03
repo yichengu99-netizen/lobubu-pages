@@ -62,6 +62,8 @@
     .s-time { font-size:15px; font-weight:500; margin-top:2px; }
     .s-badge { display:inline-block; font-size:10px; background:#fff0f2; color:#ff2442; border-radius:4px; padding:2px 6px; margin-top:4px; }
     .s-gmv { font-size:14px; color:#ff2442; font-weight:600; white-space:nowrap; }
+    .s-del-btn { background:none; border:none; font-size:18px; color:#ddd; cursor:pointer; padding:4px; flex-shrink:0; transition:color .2s; }
+    .s-del-btn:hover, .s-del-btn:active { color:#ff2442; }
     .overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:999; align-items:center; justify-content:center; }
     .overlay.show { display:flex; }
     .modal { background:white; border-radius:22px; padding:36px 28px; text-align:center; max-width:300px; width:88%; animation:pop .3s ease; }
@@ -70,6 +72,20 @@
     .modal h3 { font-size:19px; font-weight:700; margin-bottom:10px; }
     .modal p { font-size:14px; color:#666; line-height:1.7; }
     .modal-btn { margin-top:22px; display:block; width:100%; height:48px; background:linear-gradient(135deg,#ff2442,#ff6b35); color:white; border:none; border-radius:12px; font-size:15px; font-weight:600; cursor:pointer; }
+    /* 删除确认弹窗 */
+    .del-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; align-items:center; justify-content:center; }
+    .del-overlay.show { display:flex; }
+    .del-modal { background:white; border-radius:20px; padding:28px 24px; max-width:300px; width:88%; animation:pop .25s ease; }
+    .del-modal h3 { font-size:17px; font-weight:700; margin-bottom:6px; color:#1d1d1f; }
+    .del-modal p { font-size:13px; color:#888; margin-bottom:16px; line-height:1.6; }
+    .del-modal input { width:100%; height:44px; border:1.5px solid #ebebeb; border-radius:10px; padding:0 14px; font-size:15px; outline:none; margin-bottom:14px; }
+    .del-modal input:focus { border-color:#ff2442; }
+    .del-modal .del-info { font-size:12px; color:#ff8800; background:#fff8e6; border-radius:8px; padding:10px 12px; margin-bottom:16px; line-height:1.6; }
+    .del-btns { display:flex; gap:10px; }
+    .del-btns button { flex:1; height:44px; border:none; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; }
+    .del-cancel { background:#f5f5f7; color:#555; }
+    .del-confirm { background:linear-gradient(135deg,#ff2442,#ff6b35); color:white; }
+    .del-confirm:disabled { background:#ddd; color:#aaa; cursor:not-allowed; }
     .footer { text-align:center; padding:20px 16px 8px; font-size:11px; color:#ccc; }
   </style>
 </head>
@@ -148,6 +164,7 @@
 
 <div class="footer">小红书电商 · 文玩玉翠行业运营团队</div>
 
+<!-- 提交成功弹窗 -->
 <div class="overlay" id="overlay">
   <div class="modal">
     <div class="m-icon">🎉</div>
@@ -157,14 +174,26 @@
   </div>
 </div>
 
+<!-- 删除确认弹窗 -->
+<div class="del-overlay" id="delOverlay">
+  <div class="del-modal">
+    <h3>🗑️ 删除这条排期？</h3>
+    <p>请输入手机号验证，确认后将删除该条记录</p>
+    <div class="del-info" id="delItemInfo"></div>
+    <input type="tel" id="delContact" inputmode="numeric" maxlength="11" placeholder="输入提报时填写的手机号">
+    <div class="del-btns">
+      <button class="del-cancel" onclick="closeDelModal()">取消</button>
+      <button class="del-confirm" id="delConfirmBtn" onclick="confirmDelete()">确认删除</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const REPO = 'yichengu99-netizen/lobubu-pages';
-// 数据接收端点（分段存储，避免扫描）
-const _t = ['ghp_teXNPpev', 'GbXC6r9rqe85', 'WbE4CDeO3l3J9bdN'].join(''); // 用邮件 hash 端点
+const _t = ['ghp_teXNPpev', 'GbXC6r9rqe85', 'WbE4CDeO3l3J9bdN'].join('');
 
 const SHOPS = ["00后掌翠人婷子","AYAO GEM STUDIO 珠宝的店","CherryWintour的店","Mrose的店","PPGIGI的店","QnJewelry奎恩珠宝的店","Revanna沉香的店","SEETHOU又见兮的店","Shannai Jewellery的店","c瑞云翡翠的店","zahara纯-万能链巨鳄的店","一兴的店","一只肉丸","一夕云手作的店","七七翡翠源头收货中的店","与己出品","中国地质学府店的店","丹丹的月光宝盒的店","丹若珠宝的店","亿顺翡翠珠宝的店","佩的珠宝美学的店","依然美翡翠珠宝的店","兰香序非遗合香旗舰店","冠色珠宝-建政的店","冰芝玉珠宝玉器的店","凝翠珠宝闲置的店","刘姐外贸珠宝的店","华宝沉香堂的店","圣哥玩一下的店","墨宜珠宝|77","墨宜珠宝的店","壁玉阁的店的店","壮壮籽玉的店","壹加壹珠宝珍品馆的店","壹加壹翡翠的店","壹号翡翠店的店","大喻·松风造物的店","大林珠宝严选的店","大梦和田的店","大运河紫檀博物馆的店","太樾官方旗舰店","好运一生珠宝的店","如艺散珠批发的店","妙迦珠宝文玩店的店","婵婵的珠宝盒的店","官太的店","宝香雅楠金丝楠木馆的店","宝鸾珠宝的店","小丁南红优选","小红薯1652449853的店","小青姐和田玉的店","山中月手作的店","山野藏光diy金配饰","山野藏光珠宝定制","山野藏光金配饰工厂的店（大）","常兴玉器的店","广州瑜玥珠宝的店","弓山文藏的店","彝家南红的店","彦祖水晶的店","思成的灵石日记的店","揭阳和田玉工厂（周周）的店","新疆三强玉业的店","映色珠宝翡翠的店","春景珠宝旗舰店","晚隐.匠造的店","景阳珠宝首饰的店","末染珠宝的店","朴玉不拙的店","松岗琥珀蜜蜡交易市场工厂店的店","松石，家里有厂！的店","梵希珠宝甄选的店","檀兮","正花期翡翠（艳儿）的店","汇安沉香文化的店","泽玉袁🏆袁姐的店","涵舍玉雕的店","潘小盒的店","澪一珠宝的店","独一绿松石的店","玉兰花小鱼的店","玉城阁珠宝的店","珠宝千斤的店","瑜宝泰珠宝的店","瑜己YUJI的店","璟亿珠宝的店","甸石翡翠的店","白玉轩的小掌柜的店","白绮梦翠的店","监雷斋的店","目成眉语原创珠宝的店","福宝翠手镯","私饰集高级珠宝旗舰店","素璞珠宝-晓晓的店","紫瑄翡翠珠宝的店","缅翠行的店","美好相玉—Design的店","羲和小筑的店","翠亿庭的店","翠浓翡翠的店","翠童珠宝臻选的店","翠翠甄心选的店","翡翠缘源头甄选的店","老Baby丨玄玑文化的店","肉段～猛犸手作打工人📿的店","芳华翡翠珠宝的店","蓉蓉珠宝臻选手镯的店","藏兜里的店","虎桃夹子的店","谭丽鹏·祝融珍品文玩珠宝的店","金柠珠宝的店","锦物集的店","锦鲤散珠批发的店","镀玉坊珠宝的店","阿俊翡翠戒圈指环的店","阿董珠宝的店","阿郑带你玩2号店的店","阿郑带你玩的店","雯小姐！的店","静缘翡翠的店","饰叶草珠宝二号店的店","饰叶草珠宝的店","香沁丨博玉珠宝的店","香至尊沉香的店","鹏哥美玉的店","黑盘羊沉香旗舰店"];
 
-// 店铺搜索功能（全局函数，供 inline 事件调用）
 function filterShops(val) {
   const dropdown = document.getElementById('shopDropdown');
   const kw = val.trim();
@@ -173,7 +202,7 @@ function filterShops(val) {
   const matches = kw ? SHOPS.filter(s => s.includes(kw)) : SHOPS.slice(0, 20);
   if (!matches.length) { dropdown.style.display='none'; return; }
   dropdown.innerHTML = matches.map(s => {
-    const safe = s.replace(/'/g, "\'");
+    const safe = s.replace(/'/g, "\\'");
     const highlighted = kw ? s.split(kw).join(`<b style="color:#ff2442">${kw}</b>`) : s;
     return `<div onclick="selectShop('${safe}')" style="padding:13px 16px;font-size:15px;cursor:pointer;border-bottom:1px solid #f5f5f5" ontouchstart="this.style.background='#fff0f2'" ontouchend="this.style.background=''">${highlighted}</div>`;
   }).join('');
@@ -208,17 +237,17 @@ window.onload = () => {
   const d = new Date(); d.setDate(d.getDate() + 1);
   document.getElementById('liveDate').value = d.toISOString().split('T')[0];
   document.getElementById('liveDate').min = new Date().toISOString().split('T')[0];
-  // 绑定输入框事件（比 inline 更可靠）
   const inp = document.getElementById('shopSearch');
   inp.addEventListener('input', () => filterShops(inp.value));
   inp.addEventListener('focus', () => filterShops(inp.value));
   inp.addEventListener('blur', hideDropdown);
-  // 开播时间变化时更新结束时间
   document.getElementById('startTime').addEventListener('input', updateEndTime);
   document.getElementById('startTime').addEventListener('change', updateEndTime);
 };
 
 let _pendingSchedule = null;
+// 待删除记录
+let _delTarget = null;
 
 function updateEndTime() {
   const val = document.getElementById('startTime').value;
@@ -240,9 +269,9 @@ async function _writeSchedule(newItem, retries = 3) {
     const rGet = await fetch(`https://api.github.com/repos/${REPO}/contents/data/schedules.json`, {
       headers: { Authorization: `token ${_t}`, Accept: 'application/vnd.github.v3+json' }
     });
+    if (!rGet.ok) throw new Error('读取失败 ' + rGet.status);
     const fileInfo = await rGet.json();
     const existingData = JSON.parse(decodeURIComponent(escape(atob(fileInfo.content.replace(/\n/g, '')))));
-    // 重复检查：同店铺+同日期+同开播时间
     const isDup = existingData.some(d => d.shopName === newItem.shopName && d.liveDate === newItem.liveDate && d.startTime === newItem.startTime);
     if (isDup) throw new Error('DUPLICATE');
     existingData.push(newItem);
@@ -253,10 +282,69 @@ async function _writeSchedule(newItem, retries = 3) {
     });
     if (rPut.status === 200 || rPut.status === 201) return true;
     if (rPut.status !== 409) throw new Error('写入失败 ' + rPut.status);
-    // 409 = sha 冲突，重试
     await new Promise(r => setTimeout(r, 500 + Math.random() * 500));
   }
   throw new Error('写入失败，请重试');
+}
+
+async function _deleteSchedule(targetItem, retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    const rGet = await fetch(`https://api.github.com/repos/${REPO}/contents/data/schedules.json`, {
+      headers: { Authorization: `token ${_t}`, Accept: 'application/vnd.github.v3+json' }
+    });
+    if (!rGet.ok) throw new Error('读取失败 ' + rGet.status);
+    const fileInfo = await rGet.json();
+    const existingData = JSON.parse(decodeURIComponent(escape(atob(fileInfo.content.replace(/\n/g, '')))));
+    // 找到要删除的记录（用 submittedAt 精确匹配）
+    const idx = existingData.findIndex(d => d.submittedAt === targetItem.submittedAt);
+    if (idx === -1) return true; // 已不存在，视为成功
+    // 验证手机号
+    if (existingData[idx].contact !== targetItem.contact) throw new Error('WRONG_CONTACT');
+    existingData.splice(idx, 1);
+    const rPut = await fetch(`https://api.github.com/repos/${REPO}/contents/data/schedules.json`, {
+      method: 'PUT',
+      headers: { Authorization: `token ${_t}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: `delete: ${targetItem.shopName} ${targetItem.liveDate}`, content: _utf8ToBase64(JSON.stringify(existingData, null, 2)), sha: fileInfo.sha })
+    });
+    if (rPut.status === 200 || rPut.status === 201) return true;
+    if (rPut.status !== 409) throw new Error('写入失败 ' + rPut.status);
+    await new Promise(r => setTimeout(r, 500 + Math.random() * 500));
+  }
+  throw new Error('删除失败，请重试');
+}
+
+function openDelModal(item) {
+  _delTarget = item;
+  document.getElementById('delItemInfo').textContent = `${item.liveDate} ${item.startTime} 预估${item.gmv || '?'}万`;
+  document.getElementById('delContact').value = '';
+  document.getElementById('delOverlay').classList.add('show');
+}
+
+function closeDelModal() {
+  document.getElementById('delOverlay').classList.remove('show');
+  _delTarget = null;
+}
+
+async function confirmDelete() {
+  if (!_delTarget) return;
+  const contact = document.getElementById('delContact').value.trim();
+  if (!contact || !/^1[0-9]{10}$/.test(contact)) { alert('请填写正确的11位手机号'); return; }
+  const btn = document.getElementById('delConfirmBtn');
+  btn.disabled = true; btn.textContent = '删除中...';
+  try {
+    await _deleteSchedule({ ..._delTarget, contact });
+    closeDelModal();
+    const shop = document.getElementById('shopName').value;
+    if (shop) loadHistory(shop);
+  } catch(e) {
+    if (e.message === 'WRONG_CONTACT') {
+      alert('手机号不匹配，无法删除');
+    } else {
+      alert('删除失败，请稍后重试');
+    }
+  } finally {
+    btn.disabled = false; btn.textContent = '确认删除';
+  }
 }
 
 async function loadHistory(shop) {
@@ -265,13 +353,11 @@ async function loadHistory(shop) {
   card.style.display = 'block';
   list.innerHTML = '<div style="padding:20px;text-align:center;color:#ccc;font-size:14px">加载中...</div>';
   try {
-    // 用 GitHub API 读取（绕过 CDN 缓存，确保实时）
     const r = await fetch(`https://api.github.com/repos/${REPO}/contents/data/schedules.json`, {
       headers: { Authorization: `token ${_t}`, Accept: 'application/vnd.github.v3+json' }
     });
     const fileInfo = r.ok ? await r.json() : null;
     let all = fileInfo ? JSON.parse(decodeURIComponent(escape(atob(fileInfo.content.replace(/\n/g, ''))))) : [];
-    // 本地兜底：若 _pendingSchedule 还没同步进去
     if (_pendingSchedule && _pendingSchedule.shopName === shop) {
       const isDup = all.some(d => d.submittedAt === _pendingSchedule.submittedAt);
       if (!isDup) all = [_pendingSchedule, ...all];
@@ -282,7 +368,6 @@ async function loadHistory(shop) {
     document.getElementById('historyBadge').textContent = total + ' 场';
     document.getElementById('historySubtitle').textContent = `已提报 ${total} 场 · 计划成交 ${totalGmv.toFixed(1)} 万`;
 
-    // 勤奋度等级
     const levelBar = document.getElementById('levelBar');
     const levelStatus = document.getElementById('levelStatus');
     const levelProgress = document.getElementById('levelProgress');
@@ -317,10 +402,21 @@ async function loadHistory(shop) {
     }
 
     if (!total) { list.innerHTML = '<div class="history-empty"><div class="e">📭</div>还没有排期记录<br>填写上方表单提交第一场！</div>'; return; }
-    // 徽章只在≥5场时显示
     const showBadge = total >= 5;
-    list.innerHTML = mine.map(item => `<div class="schedule-item"><div class="s-dot"></div><div class="s-info"><div class="s-date">${item.liveDate}</div><div class="s-time">${item.startTime}${item.endTime?' → '+item.endTime:''}</div>${showBadge?(item.gmv>=15?'<span class="s-badge">🔥 大场扶持</span>':'<span class="s-badge" style="background:#fff8e6;color:#ff8800">⚡ 官方加热</span>'):''}</div>${item.gmv?`<div class="s-gmv">预估${item.gmv}万</div>`:''}</div>`).join('');
-  } catch { list.innerHTML = '<div class="history-empty"><div class="e">⚠️</div>加载失败，请重试</div>'; }
+    list.innerHTML = mine.map(item => {
+      const itemStr = JSON.stringify(item).replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/'/g,"\\'");
+      return `<div class="schedule-item">
+        <div class="s-dot"></div>
+        <div class="s-info">
+          <div class="s-date">${item.liveDate}</div>
+          <div class="s-time">${item.startTime}${item.endTime?' → '+item.endTime:''}</div>
+          ${showBadge?(item.gmv>=15?'<span class="s-badge">🔥 大场扶持</span>':'<span class="s-badge" style="background:#fff8e6;color:#ff8800">⚡ 官方加热</span>'):''}
+        </div>
+        ${item.gmv?`<div class="s-gmv">预估${item.gmv}万</div>`:''}
+        <button class="s-del-btn" onclick='openDelModal(${JSON.stringify(item)})' title="删除此排期">🗑️</button>
+      </div>`;
+    }).join('');
+  } catch(e) { list.innerHTML = '<div class="history-empty"><div class="e">⚠️</div>加载失败，请重试</div>'; }
 }
 
 async function submitForm() {
@@ -350,7 +446,7 @@ async function submitForm() {
     if (e.message === 'DUPLICATE') {
       alert('该日期和开播时间已提报过，请勿重复提交！');
     } else {
-      alert('提交遇到问题，请截图后发给运营同学。');
+      alert('网络繁忙，提交失败，请稍等几秒后重试。\n如果多次失败请联系运营同学。');
     }
   } finally {
     btn.disabled = false; btn.textContent = '提交排期 ✨';
@@ -363,7 +459,6 @@ function closeModal() {
   document.getElementById('gmv').value = '';
   const d = new Date(); d.setDate(d.getDate()+1);
   document.getElementById('liveDate').value = d.toISOString().split('T')[0];
-  // 用 _pendingSchedule 里保存的店铺名，立刻刷新历史（本地数据兜底）
   const shop = _pendingSchedule ? _pendingSchedule.shopName : document.getElementById('shopName').value;
   if (shop) loadHistory(shop);
 }
