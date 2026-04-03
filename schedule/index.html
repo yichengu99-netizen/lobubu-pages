@@ -256,7 +256,12 @@ async function _readFile() {
   });
   if (!r.ok) throw new Error('读取失败 ' + r.status);
   var fileInfo = await r.json();
-  var data = JSON.parse(decodeURIComponent(escape(atob(fileInfo.content.replace(/\n/g, '')))));
+  // 用 TextDecoder 解码，兼容大文件和低端机
+  var b64 = fileInfo.content.replace(/\n/g, '');
+  var binary = atob(b64);
+  var bytes = new Uint8Array(binary.length);
+  for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  var data = JSON.parse(new TextDecoder('utf-8').decode(bytes));
   return { data, sha: fileInfo.sha };
 }
 
@@ -302,17 +307,18 @@ async function _deleteSchedule(idx) {
 
 async function handleDelete(idx) {
   var target = _mySchedules[idx];
-  if (!target) return;
+  if (!target) { alert('记录不存在，请刷新页面重试'); return; }
   if (!confirm(target.liveDate + ' ' + target.startTime + '\n确认删除这条排期？')) return;
   var btn = document.querySelector('.s-del-btn[data-idx="' + idx + '"]');
   if (btn) { btn.disabled = true; btn.textContent = '⏳'; }
   try {
     await _deleteSchedule(idx);
     var shop = document.getElementById('shopName').value;
-    if (shop) loadHistory(shop);
+    if (shop) await loadHistory(shop);
   } catch(e) {
+    alert('删除失败：' + (e && e.message ? e.message : '未知错误') + '\n请刷新页面后重试');
+  } finally {
     if (btn) { btn.disabled = false; btn.textContent = '🗑️'; }
-    alert('删除失败，请稍后重试');
   }
 }
 
