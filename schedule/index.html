@@ -264,7 +264,14 @@ function updateEndTime() {
 }
 
 function _utf8ToBase64(str) {
-  return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(_, p1){ return String.fromCharCode(parseInt(p1, 16)); }));
+  // 用 TextEncoder 转 Uint8Array，再分块 btoa，兼容大文件和低端机
+  var bytes = new TextEncoder().encode(str);
+  var binary = '';
+  var chunkSize = 8192;
+  for (var i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+  }
+  return btoa(binary);
 }
 
 async function _readFile() {
