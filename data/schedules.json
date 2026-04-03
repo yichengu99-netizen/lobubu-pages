@@ -1501,5 +1501,14 @@
     "endTime": "22:30",
     "gmv": 11,
     "submittedAt": "2026-04-03T04:09:01.794Z"
+  },
+  {
+    "shopName": "Mrose的店",
+    "contact": "17825336649",
+    "liveDate": "2026-04-08",
+    "startTime": "19:00",
+    "endTime": "23:00",
+    "gmv": 10,
+    "submittedAt": "2026-04-03T05:07:00.282Z"
   }
 ]
