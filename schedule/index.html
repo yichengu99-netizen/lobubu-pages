@@ -68,9 +68,9 @@
     .modal h3 { font-size:19px; font-weight:700; margin-bottom:10px; }
     .modal p { font-size:14px; color:#666; line-height:1.7; }
     .modal-btn { margin-top:22px; display:block; width:100%; height:48px; background:linear-gradient(135deg,#ff2442,#ff6b35); color:white; border:none; border-radius:12px; font-size:15px; font-weight:600; cursor:pointer; }
-    .del-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; align-items:center; justify-content:center; }
-    .del-overlay.show { display:flex; }
-    .del-modal { background:white; border-radius:20px; padding:28px 24px; max-width:300px; width:88%; animation:pop .25s ease; }
+    .del-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; }
+    .del-overlay.show { display:block; }
+    .del-modal { background:white; border-radius:20px; padding:28px 24px; max-width:300px; width:88%; animation:pop .25s ease; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); }
     .del-modal h3 { font-size:17px; font-weight:700; margin-bottom:6px; }
     .del-modal p { font-size:13px; color:#888; margin-bottom:14px; line-height:1.6; }
     .del-modal input { width:100%; height:44px; border:1.5px solid #ebebeb; border-radius:10px; padding:0 14px; font-size:15px; outline:none; margin-bottom:10px; }
@@ -174,7 +174,7 @@
     <h3>🗑️ 删除这条排期？</h3>
     <p>输入提报时的手机号验证身份</p>
     <div class="del-info" id="delItemInfo"></div>
-    <input type="tel" id="delContact" inputmode="numeric" maxlength="11" placeholder="输入提报时填写的手机号">
+    <input type="text" id="delContact" inputmode="numeric" maxlength="11" placeholder="输入提报时填写的手机号" autocomplete="off">
     <div class="del-btns">
       <button class="del-cancel" onclick="closeDelModal()">取消</button>
       <button class="del-confirm" id="delConfirmBtn" onclick="confirmDelete()">确认删除</button>
@@ -310,20 +310,27 @@ async function _writeSchedule(newItem, retries) {
 
 async function _deleteSchedule(idx, contact, retries) {
   retries = retries || 3;
+  var target = _mySchedules[idx];
+  if (!target) throw new Error('记录不存在');
   for (var i = 0; i < retries; i++) {
-    var f = await _readFile();
-    // 按 submittedAt 找（idx是本地排序后的位置，用submittedAt更可靠）
-    var target = _mySchedules[idx];
+    var f = await _withTimeout(_readFile(), 10000);
     var pos = f.data.findIndex(function(d){ return d.submittedAt === target.submittedAt; });
     if (pos === -1) return true;
     if (f.data[pos].contact !== contact) throw new Error('WRONG_CONTACT');
     f.data.splice(pos, 1);
-    var rPut = await _writeFile(f.data, f.sha, 'delete: ' + target.shopName + ' ' + target.liveDate);
+    var rPut = await _withTimeout(_writeFile(f.data, f.sha, 'delete: ' + target.shopName + ' ' + target.liveDate), 15000);
     if (rPut.status === 200 || rPut.status === 201) return true;
     if (rPut.status !== 409) throw new Error('删除失败 ' + rPut.status);
     await new Promise(function(r){ setTimeout(r, 600 + Math.random()*400); });
   }
   throw new Error('删除失败，请重试');
+}
+
+function _withTimeout(promise, ms) {
+  return Promise.race([
+    promise,
+    new Promise(function(_, reject){ setTimeout(function(){ reject(new Error('TIMEOUT')); }, ms); })
+  ]);
 }
 
 function openDelModal(idx) {
