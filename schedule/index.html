@@ -68,19 +68,14 @@
     .modal h3 { font-size:19px; font-weight:700; margin-bottom:10px; }
     .modal p { font-size:14px; color:#666; line-height:1.7; }
     .modal-btn { margin-top:22px; display:block; width:100%; height:48px; background:linear-gradient(135deg,#ff2442,#ff6b35); color:white; border:none; border-radius:12px; font-size:15px; font-weight:600; cursor:pointer; }
-    .del-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; }
-    .del-overlay.show { display:block; }
-    .del-modal { background:white; border-radius:20px; padding:28px 24px; max-width:300px; width:88%; animation:pop .25s ease; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); }
-    .del-modal h3 { font-size:17px; font-weight:700; margin-bottom:6px; }
-    .del-modal p { font-size:13px; color:#888; margin-bottom:14px; line-height:1.6; }
-    .del-modal input { width:100%; height:44px; border:1.5px solid #ebebeb; border-radius:10px; padding:0 14px; font-size:15px; outline:none; margin-bottom:10px; }
-    .del-modal input:focus { border-color:#ff2442; }
-    .del-info { font-size:12px; color:#ff8800; background:#fff8e6; border-radius:8px; padding:10px 12px; margin-bottom:14px; line-height:1.6; }
-    .del-btns { display:flex; gap:10px; }
-    .del-btns button { flex:1; height:44px; border:none; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; }
-    .del-cancel { background:#f5f5f7; color:#555; }
-    .del-confirm { background:linear-gradient(135deg,#ff2442,#ff6b35); color:white; }
-    .del-confirm:disabled { background:#ddd; color:#aaa; }
+    .del-inline { display:none; background:#fff8e6; border-radius:10px; padding:12px 14px; margin:0 20px 12px; }
+    .del-inline.show { display:block; }
+    .del-inline-row { display:flex; gap:8px; align-items:center; margin-top:8px; }
+    .del-inline input { flex:1; height:40px; border:1.5px solid #ebebeb; border-radius:8px; padding:0 12px; font-size:14px; outline:none; background:white; }
+    .del-inline input:focus { border-color:#ff2442; }
+    .del-inline-cancel { background:#f0f0f0; color:#555; border:none; border-radius:8px; height:40px; padding:0 14px; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; }
+    .del-inline-confirm { background:linear-gradient(135deg,#ff2442,#ff6b35); color:white; border:none; border-radius:8px; height:40px; padding:0 14px; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; }
+    .del-inline-confirm:disabled { background:#ddd; color:#aaa; }
     .footer { text-align:center; padding:20px 16px 8px; font-size:11px; color:#ccc; }
   </style>
 </head>
@@ -168,19 +163,7 @@
   </div>
 </div>
 
-<!-- 删除确认弹窗 -->
-<div class="del-overlay" id="delOverlay">
-  <div class="del-modal">
-    <h3>🗑️ 删除这条排期？</h3>
-    <p>输入提报时的手机号验证身份</p>
-    <div class="del-info" id="delItemInfo"></div>
-    <input type="text" id="delContact" inputmode="numeric" maxlength="11" placeholder="输入提报时填写的手机号" autocomplete="off">
-    <div class="del-btns">
-      <button class="del-cancel" onclick="closeDelModal()">取消</button>
-      <button class="del-confirm" id="delConfirmBtn" onclick="confirmDelete()">确认删除</button>
-    </div>
-  </div>
-</div>
+<!-- 删除确认：行内展开，无弹窗 -->
 
 <script>
 const REPO = 'yichengu99-netizen/lobubu-pages';
@@ -308,17 +291,16 @@ async function _writeSchedule(newItem, retries) {
   throw new Error('写入失败，请重试');
 }
 
-async function _deleteSchedule(idx, contact, retries) {
-  retries = retries || 3;
+async function _deleteSchedule(idx, contact) {
   var target = _mySchedules[idx];
   if (!target) throw new Error('记录不存在');
-  for (var i = 0; i < retries; i++) {
-    var f = await _withTimeout(_readFile(), 10000);
+  for (var i = 0; i < 3; i++) {
+    var f = await _readFile();
     var pos = f.data.findIndex(function(d){ return d.submittedAt === target.submittedAt; });
     if (pos === -1) return true;
     if (f.data[pos].contact !== contact) throw new Error('WRONG_CONTACT');
     f.data.splice(pos, 1);
-    var rPut = await _withTimeout(_writeFile(f.data, f.sha, 'delete: ' + target.shopName + ' ' + target.liveDate), 15000);
+    var rPut = await _writeFile(f.data, f.sha, 'delete: ' + target.shopName + ' ' + target.liveDate);
     if (rPut.status === 200 || rPut.status === 201) return true;
     if (rPut.status !== 409) throw new Error('删除失败 ' + rPut.status);
     await new Promise(function(r){ setTimeout(r, 600 + Math.random()*400); });
@@ -326,42 +308,40 @@ async function _deleteSchedule(idx, contact, retries) {
   throw new Error('删除失败，请重试');
 }
 
-function _withTimeout(promise, ms) {
-  return Promise.race([
-    promise,
-    new Promise(function(_, reject){ setTimeout(function(){ reject(new Error('TIMEOUT')); }, ms); })
-  ]);
-}
-
-function openDelModal(idx) {
+// 行内展开删除：点🗑️在记录下方展开手机号输入，不弹窗
+function openDelInline(idx) {
+  // 收起其他已展开的
+  document.querySelectorAll('.del-inline').forEach(function(el){ el.classList.remove('show'); });
+  // 如果点的是已展开的那个，就只收起（toggle）
+  var inlineEl = document.getElementById('del-inline-' + idx);
+  if (!inlineEl) return;
+  inlineEl.classList.add('show');
   _delIdx = idx;
-  var item = _mySchedules[idx];
-  document.getElementById('delItemInfo').textContent = item.liveDate + ' ' + item.startTime + ' 预估' + (item.gmv || '?') + '万';
-  document.getElementById('delContact').value = '';
-  document.getElementById('delOverlay').classList.add('show');
+  // 清空输入
+  var inp = inlineEl.querySelector('input');
+  if (inp) { inp.value = ''; }
 }
 
-function closeDelModal() {
-  document.getElementById('delOverlay').classList.remove('show');
+function closeDelInline() {
+  document.querySelectorAll('.del-inline').forEach(function(el){ el.classList.remove('show'); });
   _delIdx = -1;
 }
 
-async function confirmDelete() {
-  if (_delIdx < 0) return;
-  var contact = document.getElementById('delContact').value.trim();
+async function confirmDeleteInline(idx) {
+  var inlineEl = document.getElementById('del-inline-' + idx);
+  var inp = inlineEl ? inlineEl.querySelector('input') : null;
+  var contact = inp ? inp.value.trim() : '';
   if (!contact || !/^1[0-9]{10}$/.test(contact)) { alert('请填写正确的11位手机号'); return; }
-  var btn = document.getElementById('delConfirmBtn');
-  btn.disabled = true; btn.textContent = '删除中...';
+  var btn = inlineEl.querySelector('.del-inline-confirm');
+  if (btn) { btn.disabled = true; btn.textContent = '删除中...'; }
   try {
-    await _deleteSchedule(_delIdx, contact);
-    closeDelModal();
+    await _deleteSchedule(idx, contact);
     var shop = document.getElementById('shopName').value;
     if (shop) loadHistory(shop);
   } catch(e) {
-    if (e.message === 'WRONG_CONTACT') alert('手机号不匹配，无法删除');
+    if (btn) { btn.disabled = false; btn.textContent = '确认删除'; }
+    if (e.message === 'WRONG_CONTACT') alert('手机号不对，无法删除');
     else alert('删除失败，请稍后重试');
-  } finally {
-    btn.disabled = false; btn.textContent = '确认删除';
   }
 }
 
@@ -440,13 +420,30 @@ async function loadHistory(shop) {
         '</div>' +
         gmvStr +
         '<button class="s-del-btn" data-idx="' + i + '" title="删除此排期">🗑️</button>' +
+      '</div>' +
+      // 行内展开区域
+      '<div class="del-inline" id="del-inline-' + i + '">' +
+        '<div style="font-size:12px;color:#ff8800;font-weight:500;margin-bottom:6px">删除：' + item.liveDate + ' ' + item.startTime + ' 预估' + (item.gmv||'?') + '万</div>' +
+        '<div class="del-inline-row">' +
+          '<input type="text" inputmode="numeric" maxlength="11" placeholder="输入提报时的手机号" autocomplete="off">' +
+          '<button class="del-inline-cancel" data-idx="' + i + '">取消</button>' +
+          '<button class="del-inline-confirm" data-idx="' + i + '">确认删除</button>' +
+        '</div>' +
       '</div>';
     }
     list.innerHTML = html;
-    // 事件委托绑定删除按钮
+    // 事件委托
     list.querySelectorAll('.s-del-btn').forEach(function(btn) {
       btn.addEventListener('click', function() {
-        openDelModal(parseInt(btn.getAttribute('data-idx')));
+        openDelInline(parseInt(btn.getAttribute('data-idx')));
+      });
+    });
+    list.querySelectorAll('.del-inline-cancel').forEach(function(btn) {
+      btn.addEventListener('click', closeDelInline);
+    });
+    list.querySelectorAll('.del-inline-confirm').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        confirmDeleteInline(parseInt(btn.getAttribute('data-idx')));
       });
     });
   } catch(e) {
