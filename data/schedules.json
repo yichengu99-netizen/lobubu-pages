@@ -3166,5 +3166,14 @@
     "endTime": "17:30",
     "gmv": 2,
     "submittedAt": "2026-04-07T08:29:18.649Z"
+  },
+  {
+    "shopName": "虎桃夹子的店",
+    "contact": "18010555980",
+    "liveDate": "2026-04-09",
+    "startTime": "18:00",
+    "endTime": "22:00",
+    "gmv": 100000,
+    "submittedAt": "2026-04-08T01:22:06.143Z"
   }
 ]
