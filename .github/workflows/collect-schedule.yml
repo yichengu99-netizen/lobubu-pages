@@ -4,50 +4,48 @@ on:
   issues:
     types: [opened]
 
+permissions:
+  contents: write
+  issues: write
+
 jobs:
   collect:
     runs-on: ubuntu-latest
     if: contains(github.event.issue.labels.*.name, 'schedule') || contains(github.event.issue.title, '【排期】')
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 解析并写入排期数据
         env:
           ISSUE_BODY: ${{ github.event.issue.body }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python3 << 'PYEOF'
-          import json, os, re
+          import json, os
           from datetime import datetime
 
           body = os.environ.get('ISSUE_BODY', '')
-          issue_num = os.environ.get('ISSUE_NUMBER', '')
-
-          # 解析 issue body（JSON格式）
           try:
               data = json.loads(body)
           except:
               print("解析失败，跳过")
               exit(0)
 
-          # 读取现有数据
           try:
               with open('data/schedules.json', 'r', encoding='utf-8') as f:
                   schedules = json.load(f)
           except:
               schedules = []
 
-          # 追加新数据
-          data['issueNumber'] = issue_num
           data['collectedAt'] = datetime.utcnow().isoformat() + 'Z'
           schedules.append(data)
 
-          # 写回
           with open('data/schedules.json', 'w', encoding='utf-8') as f:
               json.dump(schedules, f, ensure_ascii=False, indent=2)
 
-          print(f"✅ 已添加第 {len(schedules)} 条排期：{data.get('shopName')}")
+          print(f"OK: 第 {len(schedules)} 条排期")
           PYEOF
 
       - name: 提交数据
@@ -55,11 +53,9 @@ jobs:
           git config user.name "lobubu-bot"
           git config user.email "bot@lobubu.pages"
           git add data/schedules.json
-          git diff --staged --quiet || git commit -m "新排期：$(date '+%Y-%m-%d %H:%M')"
+          git diff --staged --quiet || git commit -m "new schedule"
           git push
 
-      - name: 关闭 Issue（数据已收录）
+      - name: 关闭 Issue
         run: |
-          gh issue close ${{ github.event.issue.number }} --comment "✅ 排期已收录，感谢填写！"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          gh issue close ${{ github.event.issue.number }} --comment "✅ 排期已收录！"
