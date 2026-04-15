@@ -437,57 +437,48 @@ async function loadHistory(shop) {
   card.style.display = 'block';
   list.innerHTML = '<div style="padding:20px;text-align:center;color:#ccc;font-size:14px">加载中...</div>';
   try {
-    var f = await _readFile();
-    var all = f.data;
+    var r = await fetch('https://api.github.com/repos/' + REPO + '/issues?state=closed&labels=schedule&per_page=100');
+    if (!r.ok) throw new Error('load failed');
+    var issues = await r.json();
+    var all = [];
+    for (var i = 0; i < issues.length; i++) {
+      if (issues[i].title.indexOf(shop) >= 0) {
+        try { var d = JSON.parse(issues[i].body); d.submittedAt = issues[i].created_at; all.push(d); } catch(e) {}
+      }
+    }
     if (_pendingSchedule && _pendingSchedule.shopName === shop) {
-      var isDup = all.some(function(d){ return d.submittedAt === _pendingSchedule.submittedAt; });
+      var isDup = all.some(function(d){ return d.liveDate === _pendingSchedule.liveDate && d.startTime === _pendingSchedule.startTime; });
       if (!isDup) all = [_pendingSchedule].concat(all);
     }
-    var mine = all.filter(function(d){ return d.shopName === shop; })
-      .sort(function(a,b){ return (b.liveDate+b.startTime) > (a.liveDate+a.startTime) ? 1 : -1; });
-    _mySchedules = mine; // 存到全局，用index引用
-
-    var total = mine.length;
-    var totalGmv = mine.reduce(function(s,d){ return s + (parseFloat(d.gmv)||0); }, 0);
+    all.sort(function(a,b){ return (b.liveDate+b.startTime) > (a.liveDate+a.startTime) ? 1 : -1; });
+    var total = all.length;
+    var totalGmv = all.reduce(function(s,d){ return s + (parseFloat(d.gmv)||0); }, 0);
     document.getElementById('historyBadge').textContent = total + ' 场';
     document.getElementById('historySubtitle').textContent = '已提报 ' + total + ' 场 · 计划成交 ' + totalGmv.toFixed(1) + ' 万';
     renderLevel(total);
-
     if (!total) {
-      list.innerHTML = '<div class="history-empty"><div class="e">📭</div>还没有排期记录<br>填写上方表单提交第一场！</div>';
+      list.innerHTML = '<div class="history-empty"><div class="e">\ud83d\udcee</div>还没有排期记录<br>填写上方表单提交第一场！</div>';
       return;
     }
     var showBadge = total >= 5;
-    var html = '';
-    for (var i = 0; i < mine.length; i++) {
-      var item = mine[i];
+    var h = '';
+    for (var i = 0; i < all.length; i++) {
+      var item = all[i];
       var badge = '';
       if (showBadge) {
         badge = item.gmv >= 15
-          ? '<span class="s-badge">🔥 大场扶持</span>'
-          : '<span class="s-badge" style="background:#fff8e6;color:#ff8800">⚡ 官方加热</span>';
+          ? '<span class="s-badge">\ud83d\udd25 大场扶持</span>'
+          : '<span class="s-badge" style="background:#fff8e6;color:#ff8800">\u26a1 官方加热</span>';
       }
       var gmvStr = item.gmv ? '<div class="s-gmv">预估' + item.gmv + '万</div>' : '';
-      html += '<div class="schedule-item">' +
-        '<div class="s-dot"></div>' +
-        '<div class="s-info">' +
-          '<div class="s-date">' + item.liveDate + '</div>' +
-          '<div class="s-time">' + item.startTime + (item.endTime ? ' → ' + item.endTime : '') + '</div>' +
-          badge +
-        '</div>' +
-        gmvStr +
-        '<button class="s-del-btn" data-sat="' + item.submittedAt + '" title="删除此排期">🗑️</button>' +
-      '</div>';
+      h += '<div class="schedule-item"><div class="s-dot"></div><div class="s-info"><div class="s-date">' + item.liveDate + '</div><div class="s-time">' + item.startTime + (item.endTime ? ' \u2192 ' + item.endTime : '') + '</div>' + badge + '</div>' + gmvStr + '<button class="s-del-btn" data-sat="' + (item.submittedAt||'') + '" title="删除此排期">\ud83d\uddd1\ufe0f</button></div>';
     }
-    list.innerHTML = html;
+    list.innerHTML = h;
     list.querySelectorAll('.s-del-btn').forEach(function(btn) {
-      btn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        handleDelete(btn);
-      });
+      btn.addEventListener('click', function(e) { e.stopPropagation(); handleDelete(btn); });
     });
   } catch(e) {
-    list.innerHTML = '<div class="history-empty"><div class="e">⚠️</div>加载失败，请刷新重试</div>';
+    list.innerHTML = '<div class="history-empty"><div class="e">\u26a0\ufe0f</div>加载失败，请刷新重试</div>';
   }
 }
 
