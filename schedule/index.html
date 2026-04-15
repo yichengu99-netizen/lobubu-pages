@@ -252,18 +252,6 @@ function _utf8ToBase64(str) {
 
 async function _readFileWithRetry(retries) {
   retries = retries || 3;
-  for (var i = 0; i < retries; i++) {
-    try {
-      return await _readFile();
-    } catch(e) {
-      if (i === retries - 1) throw e;
-      await new Promise(function(r){ setTimeout(r, 1000); });
-    }
-  }
-}
-
-async function _readFileWithRetry(retries) {
-  retries = retries || 3;
   var lastErr;
   for (var i = 0; i < retries; i++) {
     try {
