@@ -262,7 +262,25 @@ async function _readFileWithRetry(retries) {
   }
 }
 
-async function _readFile() {
+async function _readFileWithRetry(retries) {
+  retries = retries || 3;
+  var lastErr;
+  for (var i = 0; i < retries; i++) {
+    try {
+      var ctrl = new AbortController();
+      var timer = setTimeout(function(){ ctrl.abort(); }, 10000);
+      var f = await _readFile(ctrl.signal);
+      clearTimeout(timer);
+      return f;
+    } catch(e) {
+      lastErr = e;
+      if (i < retries - 1) await new Promise(function(r){ setTimeout(r, 1500); });
+    }
+  }
+  throw lastErr;
+}
+
+async function _readFile(signal) {
   var r = await fetch('https://api.github.com/repos/' + REPO + '/contents/data/schedules.json', {
     headers: { Authorization: 'token ' + _t, Accept: 'application/vnd.github.v3+json' }
   });
