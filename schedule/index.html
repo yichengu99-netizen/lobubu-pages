@@ -174,7 +174,7 @@ function filterShops(val) {
   const kw = val.trim();
   document.getElementById('shopClearBtn').style.display = kw ? 'block' : 'none';
   if (!kw) document.getElementById('shopName').value = '';
-  const matches = kw ? SHOPS.filter(s => s.includes(kw)) : SHOPS.slice(0, 20);
+  const matches = kw ? SHOPS.filter(s => s.toLowerCase().includes(kw.toLowerCase())) : SHOPS.slice(0, 20);
   if (!matches.length) { dropdown.style.display = 'none'; return; }
   dropdown.innerHTML = matches.map((s, i) => {
     const highlighted = kw ? s.replace(new RegExp(kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'g'), `<b style="color:#ff2442">${kw}</b>`) : s;
