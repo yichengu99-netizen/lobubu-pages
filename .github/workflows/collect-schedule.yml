@@ -40,6 +40,7 @@ jobs:
               schedules = []
 
           data['collectedAt'] = datetime.utcnow().isoformat() + 'Z'
+          data['submittedAt'] = data.get('submittedAt', datetime.utcnow().isoformat() + 'Z')
           schedules.append(data)
 
           with open('data/schedules.json', 'w', encoding='utf-8') as f:
