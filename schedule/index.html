@@ -275,18 +275,31 @@ async function _writeFile(data, sha, message) {
 }
 
 async function _writeSchedule(newItem, retries) {
-  retries = retries || 3;
+  retries = retries || 2;
   for (var i = 0; i < retries; i++) {
-    var f = await _readFile();
-    var isDup = f.data.some(function(d){ return d.shopName === newItem.shopName && d.liveDate === newItem.liveDate && d.startTime === newItem.startTime; });
-    if (isDup) throw new Error('DUPLICATE');
-    f.data.push(newItem);
-    var rPut = await _writeFile(f.data, f.sha, 'schedule: ' + newItem.shopName + ' ' + newItem.liveDate);
-    if (rPut.status === 200 || rPut.status === 201) return true;
-    if (rPut.status !== 409) throw new Error('写入失败 ' + rPut.status);
-    await new Promise(function(r){ setTimeout(r, 600 + Math.random()*400); });
+    // 通过创建 Issue 触发 Actions workflow 写入数据
+    var issueData = JSON.stringify(newItem);
+    var r = await fetch('https://api.github.com/repos/' + REPO + '/issues', {
+      method: 'POST',
+      headers: {
+        Authorization: 'token ' + _t,
+        Accept: 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        title: '\u3010\u6392\u671f\u3011' + newItem.shopName + ' ' + newItem.liveDate,
+        body: issueData,
+        labels: ['schedule']
+      })
+    });
+    if (r.ok) return true;
+    if (r.status === 422) {
+      var err = await r.json();
+      if (err.errors && err.errors[0] && err.errors[0].code === 'custom') throw new Error('DUPLICATE');
+    }
+    await new Promise(function(r){ setTimeout(r, 800 + Math.random()*500); });
   }
-  throw new Error('写入失败，请重试');
+  throw new Error('写入失败');
 }
 
 async function _deleteBySubmittedAt(submittedAt, shopName) {
