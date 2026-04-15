@@ -250,6 +250,18 @@ function _utf8ToBase64(str) {
   return btoa(binary);
 }
 
+async function _readFileWithRetry(retries) {
+  retries = retries || 3;
+  for (var i = 0; i < retries; i++) {
+    try {
+      return await _readFile();
+    } catch(e) {
+      if (i === retries - 1) throw e;
+      await new Promise(function(r){ setTimeout(r, 1000); });
+    }
+  }
+}
+
 async function _readFile() {
   var r = await fetch('https://api.github.com/repos/' + REPO + '/contents/data/schedules.json', {
     headers: { Authorization: 'token ' + _t, Accept: 'application/vnd.github.v3+json' }
@@ -276,8 +288,21 @@ async function _writeFile(data, sha, message) {
 
 async function _writeSchedule(newItem, retries) {
   retries = retries || 2;
+  // 先检查是否有相同待处理的 Issue
+  var checkTitle = encodeURIComponent('\u3010\u6392\u671f\u3011' + newItem.shopName + ' ' + newItem.liveDate + ' ' + newItem.startTime);
+  var checkR = await fetch('https://api.github.com/repos/' + REPO + '/issues?state=open&per_page=50', {
+    headers: { Authorization: 'token ' + _t, Accept: 'application/vnd.github.v3+json' }
+  });
+  if (checkR.ok) {
+    var issues = await checkR.json();
+    var dupKey = newItem.shopName + newItem.liveDate + newItem.startTime;
+    for (var j = 0; j < issues.length; j++) {
+      if (issues[j].title.indexOf(newItem.shopName) >= 0 && issues[j].title.indexOf(newItem.liveDate) >= 0 && issues[j].labels.some(function(l){ return l.name === 'schedule'; })) {
+        throw new Error('DUPLICATE');
+      }
+    }
+  }
   for (var i = 0; i < retries; i++) {
-    // 通过创建 Issue 触发 Actions workflow 写入数据
     var issueData = JSON.stringify(newItem);
     var r = await fetch('https://api.github.com/repos/' + REPO + '/issues', {
       method: 'POST',
@@ -287,16 +312,12 @@ async function _writeSchedule(newItem, retries) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        title: '\u3010\u6392\u671f\u3011' + newItem.shopName + ' ' + newItem.liveDate,
+        title: '\u3010\u6392\u671f\u3011' + newItem.shopName + ' ' + newItem.liveDate + ' ' + newItem.startTime,
         body: issueData,
         labels: ['schedule']
       })
     });
     if (r.ok) return true;
-    if (r.status === 422) {
-      var err = await r.json();
-      if (err.errors && err.errors[0] && err.errors[0].code === 'custom') throw new Error('DUPLICATE');
-    }
     await new Promise(function(r){ setTimeout(r, 800 + Math.random()*500); });
   }
   throw new Error('写入失败');
