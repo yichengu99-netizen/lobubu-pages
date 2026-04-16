@@ -78,10 +78,7 @@
   <div class="hero-badge">⚡ 小红书电商 · 文玩玉翠</div>
   <h1>直播扶持排期填写</h1>
   <p>填写直播计划，我们为你安排流量扶持</p>
-  <div style="position:absolute;top:14px;right:16px;display:flex;align-items:center;gap:6px;z-index:10;">
-    <span style="font-size:11px;color:rgba(255,255,255,0.85);">找不到店名？</span>
-    <button onclick="document.getElementById('qrModal').style.display='flex'" style="background:white;border:none;color:#ff2442;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.15);">➕ 申请开通</button>
-  </div>
+  
 </div>
 
 <div class="support-cards">
@@ -98,7 +95,13 @@
   </div>
   <div class="card-body">
     <div class="field">
-      <label>店铺名称 <span class="req">*</span></label>
+      <label style="display:flex;align-items:center;justify-content:space-between;">
+      <span>店铺名称 <span class="req">*</span></span>
+      <span style="display:flex;align-items:center;gap:6px;">
+        <span style="font-size:11px;color:#aaa;">找不到店名？</span>
+        <button type="button" onclick="document.getElementById('qrModal').style.display='flex'" style="background:#ff2442;border:none;color:white;border-radius:16px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;">➕ 申请开通</button>
+      </span>
+    </label>
       <div style="position:relative">
         <input type="text" id="shopSearch" placeholder="输入店铺名称关键词..." autocomplete="off"
           style="width:100%;height:48px;border:1.5px solid #ebebeb;border-radius:10px;padding:0 40px 0 14px;font-size:15px;background:#fafafa;outline:none;transition:border-color .2s,background .2s;">
