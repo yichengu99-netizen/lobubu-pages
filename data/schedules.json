@@ -6096,5 +6096,15 @@
     "startTime": "14:00",
     "endTime": "18:00",
     "gmv": 8
+  },
+  {
+    "shopName": "中国地质学府店的店",
+    "contact": "15927661459",
+    "liveDate": "2026-05-16",
+    "startTime": "19:10",
+    "endTime": "23:10",
+    "gmv": 5,
+    "submittedAt": "2026-05-06T07:15:54.744Z",
+    "collectedAt": "2026-05-06T07:16:10.715761Z"
   }
 ]
